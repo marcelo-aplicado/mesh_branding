@@ -1,9 +1,9 @@
 {
   "name": "MeshCentral Mesh Branding",
   "shortName": "mesh_branding",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "author": "Marcelo Henrique da Silva / CRS Brands",
-  "description": "Branding por subdomínio usando logos em meshcentral-data/mesh_branding. Se o arquivo do host não existir, preserva o padrão do MeshCentral.",
+  "description": "Branding por subdomínio usando arquivos diretamente em meshcentral-data. Se o logo customizado não existir, mantém o padrão Aplicado_Logo.png.",
   "hasAdminPanel": false,
   "homepage": "https://github.com/marcelo-aplicado/mesh_branding",
   "changelogUrl": "https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/CHANGELOG.md",

@@ -1,6 +1,6 @@
 # MeshCentral Mesh Branding
 
-Plugin de branding por subdomínio usando logotipos armazenados em `meshcentral-data/mesh_branding`.
+Branding por subdomínio usando arquivos diretamente em `meshcentral-data`.
 
 ## Instalação
 
@@ -10,44 +10,44 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## Teste proposto
+## Versão 3.0.2
 
-Arquivo existente:
+Teste configurado conforme seu cenário atual:
 
 ```text
-/opt/docker/meshcentral/meshcentral-data/mesh_branding/Aplicado_Logo.png
+/opt/docker/meshcentral/meshcentral-data/Aplicado_Logo.png
+/opt/docker/meshcentral/meshcentral-data/Aplicado_Logo_Custom.png
 ```
 
-Resultado esperado:
+Comportamento esperado:
 
-- `mesh.aplicado.com.br` usa `Aplicado_Logo.png`.
-- `mesh.fastcopy.net.br` não possui `FastCopy_Logo.png`, então mantém o logo padrão do MeshCentral.
+- `mesh.aplicado.com.br`: tenta `Aplicado_Logo_Custom.png`; se existir, usa customizado.
+- `mesh.fastcopy.net.br`: tenta `FastCopy_Logo_Custom.png`; se não existir, usa `Aplicado_Logo.png`.
+- `mesh.crsbrands.com.br`: tenta `CRSBrands_Logo_Custom.png`; se não existir, usa `Aplicado_Logo.png`.
+- `mesh.mhs.tec.br`: tenta `MHS_Logo_Custom.png`; se não existir, usa `Aplicado_Logo.png`.
 
-## Importante
+## O que esta versão não altera
 
-Esta versão:
+- background;
+- cores;
+- texto interno `Meu Servidor`.
 
-- não altera background;
-- não altera cores;
-- não altera `Meu Servidor`;
-- não faz loop infinito de 404: se `/mesh_branding/logo` retornar 404 uma vez, o navegador para de tentar naquela página.
+## Testes de rota
 
-## Testes
-
-Após reiniciar o MeshCentral, teste:
+Após reiniciar o MeshCentral:
 
 ```text
 https://mesh.aplicado.com.br/mesh_branding/logo?host=mesh.aplicado.com.br
 ```
 
-Deve abrir a imagem `Aplicado_Logo.png`.
+Deve retornar `Aplicado_Logo_Custom.png`.
 
 ```text
 https://mesh.fastcopy.net.br/mesh_branding/logo?host=mesh.fastcopy.net.br
 ```
 
-Deve retornar 404 e o MeshCentral deve manter o logo padrão.
+Deve retornar `Aplicado_Logo.png`.
 
 ## ZIP
 
-Este ZIP está com os arquivos diretamente na raiz, sem pasta extra.
+Arquivos diretamente na raiz, sem pasta adicional.

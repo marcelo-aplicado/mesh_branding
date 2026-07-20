@@ -1,5 +1,5 @@
 {
-  "defaultBrand": "mesh.aplicado.com.br",
+  "defaultLogoFile": "Aplicado_Logo.png",
   "options": {
     "applyDocumentTitle": true,
     "replaceBrandingImages": true,
@@ -10,27 +10,20 @@
   },
   "domains": {
     "mesh.aplicado.com.br": {
-      "brandKey": "aplicado",
       "documentTitle": "Acesso Remoto - Aplicado",
-      "logoFile": "Aplicado_Logo.png"
+      "logoFile": "Aplicado_Logo_Custom.png"
     },
     "mesh.fastcopy.net.br": {
-      "brandKey": "fastcopy",
       "documentTitle": "Acesso Remoto - FastCopy",
-      "logoFile": "FastCopy_Logo.png"
+      "logoFile": "FastCopy_Logo_Custom.png"
     },
     "mesh.crsbrands.com.br": {
-      "brandKey": "crsbrands",
       "documentTitle": "Acesso Remoto - CRS Brands",
-      "logoFile": "CRSBrands_Logo.png"
+      "logoFile": "CRSBrands_Logo_Custom.png"
     },
     "mesh.mhs.tec.br": {
-      "brandKey": "mhs",
       "documentTitle": "Acesso Remoto - MHS TEC",
-      "logoFile": "MHS_Logo.png"
+      "logoFile": "MHS_Logo_Custom.png"
     }
-  },
-  "paths": {
-    "baseDir": "mesh_branding"
   }
 }
