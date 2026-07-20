@@ -1,8 +1,8 @@
 # MeshCentral Mesh Branding
 
-Plugin para aplicar **logotipo, título, favicon, cores e texto de apoio por subdomínio** em uma única instalação do MeshCentral.
+Plugin para aplicar **logotipo, título e favicon por subdomínio** em uma única instalação do MeshCentral.
 
-## URL de instalação
+## Instalação
 
 Use esta URL na interface gráfica do MeshCentral:
 
@@ -10,97 +10,57 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## Correção da versão 1.0.2
+## O que mudou na versão 1.0.3
 
-A versão 1.0.2 corrige o carregamento no MeshCentral 1.2.1. O `pluginHandler.js` espera que o módulo exporte uma função com o nome do `shortName`:
+A versão 1.0.3 remove a dependência de carregar imagens por `/plugins/mesh_branding/assets/...` porque a instalação retornou `404 Not Found` nesse caminho.
 
-```javascript
-module.exports.mesh_branding = function(parent) { ... }
+Agora os SVGs do repositório continuam em `assets/logos` e `assets/favicons`, mas também são embutidos dentro de `mesh_branding.js` como `data:image/svg+xml;base64,...`.
+
+## Elementos alterados no MeshCentral
+
+A versão foi ajustada para a interface real encontrada no MeshCentral 1.2.1:
+
+```html
+<div id="p6title">
+    <img id="MainMeshImage" src="serverpic.ashx">
+    <h1>Meu Servidor</h1>
+</div>
 ```
 
-A versão anterior usava `module.exports = function`, o que causava o erro:
+O plugin altera diretamente:
+
+- `#MainMeshImage`
+- `#p6title h1`
+- `document.title`
+- favicon do navegador
+
+## Domínios configurados
+
+- `mesh.aplicado.com.br` -> Aplicado
+- `mesh.fastcopy.net.br` -> FastCopy
+- `mesh.crsbrands.com.br` -> CRS Brands
+- `mesh.mhs.tec.br` -> MHS TEC
+
+## Arquivos importantes
 
 ```text
-TypeError: require(...)[plugin.shortName] is not a function
+config.json          # usado pelo MeshCentral para instalar/atualizar
+mesh_branding.js     # plugin com SVGs embutidos
+brand-config.json    # configuração documentada das marcas
+assets/logos/*.svg   # SVGs utilizados como base
+assets/favicons/*.svg
 ```
 
-## Cenário atendido
+## Teste no navegador
 
-Vários subdomínios apontando para a mesma instância MeshCentral e para a mesma base de dados, sem Multi-Tenant:
-
-- `mesh.aplicado.com.br`
-- `mesh.fastcopy.net.br`
-- `mesh.crsbrands.com.br`
-- `mesh.mhs.tec.br`
-
-A separação de acesso continua sendo feita pelas permissões de usuários e grupos de dispositivos do MeshCentral. Este plugin altera apenas a identidade visual exibida no navegador.
-
-## Estrutura
-
-```text
-mesh_branding/
-├── assets/
-│   ├── favicons/
-│   └── logos/
-├── brand-config.json
-├── CHANGELOG.md
-├── config.json
-├── mesh_branding.js
-├── LICENSE
-└── README.md
-```
-
-## Configuração das marcas
-
-Edite `brand-config.json` para alterar títulos, favicon, logo e cores.
-
-## Instalação no MeshCentral
-
-1. Confirme que plugins estão ativos no `config.json` do MeshCentral:
-
-```json
-{
-  "settings": {
-    "plugins": {
-      "enabled": true
-    }
-  }
-}
-```
-
-2. Publique este projeto no GitHub:
-
-```text
-https://github.com/marcelo-aplicado/mesh_branding
-```
-
-3. No MeshCentral:
-
-```text
-My Server -> Plugins -> Download plugin
-```
-
-4. Informe exatamente:
-
-```text
-https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
-```
-
-5. Reinicie o MeshCentral após atualizar o plugin.
-
-## Teste rápido
-
-Após reiniciar, confira se o erro desapareceu do log. No navegador, você pode executar:
-
-```javascript
-window.meshBrandingApply
-```
-
-Se retornar uma função, o script chegou ao navegador. Para reaplicar manualmente:
+No Console do navegador:
 
 ```javascript
 window.meshBrandingApply && window.meshBrandingApply();
+window.__meshBrandingResolved;
 ```
+
+Se `window.__meshBrandingResolved` retornar o host e a marca, o plugin está ativo no navegador.
 
 ## Licença
 

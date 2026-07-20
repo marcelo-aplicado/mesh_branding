@@ -1,151 +1,236 @@
 /**
- * MeshCentral Mesh Branding
- * Troca titulo, logo e favicon conforme window.location.hostname.
- * Compatibilidade MeshCentral 1.2.1:
- * O pluginHandler chama require(...)[plugin.shortName](parent), por isso o export precisa ser module.exports.mesh_branding.
+ * MeshCentral Mesh Branding v1.0.3
+ * Branding por subdominio com logos SVG embutidos como data URI.
+ * Corrige 404 em /plugins/mesh_branding/assets/... no MeshCentral 1.2.1.
  */
 module.exports.mesh_branding = function(parent) {
     var obj = {};
     obj.parent = parent;
     obj.exports = [ 'onWebUIStartupEnd', 'goPageEnd' ];
 
-    function injectBrandingScript() {
-        (function () {
+    obj.onWebUIStartupEnd = function() {
+        (function() {
             'use strict';
+            var BRAND_CONFIG = {"defaultBrand": "mesh.aplicado.com.br", "options": {"applyFavicon": true, "applyDocumentTitle": true, "applyMainMeshImage": true, "applyMainTitle": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"brandKey": "aplicado", "documentTitle": "Acesso Remoto - Aplicado", "mainTitle": "Aplicado", "primaryColor": "#2563eb", "accentColor": "#0f172a"}, "mesh.fastcopy.net.br": {"brandKey": "fastcopy", "documentTitle": "Acesso Remoto - FastCopy", "mainTitle": "FastCopy", "primaryColor": "#16a34a", "accentColor": "#052e16"}, "mesh.crsbrands.com.br": {"brandKey": "crsbrands", "documentTitle": "Acesso Remoto - CRS Brands", "mainTitle": "CRS Brands", "primaryColor": "#dc2626", "accentColor": "#450a0a"}, "mesh.mhs.tec.br": {"brandKey": "mhs", "documentTitle": "Acesso Remoto - MHS TEC", "mainTitle": "MHS TEC", "primaryColor": "#7c3aed", "accentColor": "#2e1065"}}, "embeddedLogos": {"aplicado": {"logoDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJBcGxpY2FkbyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB4Mj0iMSIgeTE9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMjU2M2ViIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzExMTgyNyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUyMCIgaGVpZ2h0PSIxNDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIvPgogIDxjaXJjbGUgY3g9IjcyIiBjeT0iNzAiIHI9IjM4IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LC4xOCkiLz4KICA8cGF0aCBkPSJNNTIgODggTDcyIDM0IEw5MiA4OCBaIiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIuOTYiLz4KICA8dGV4dCB4PSIxMjYiIHk9IjgzIiBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MiIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZmZmZmZiI+QXBsaWNhZG88L3RleHQ+Cjwvc3ZnPg==", "faviconDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJBIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHgyPSIxIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyNTYzZWIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTExODI3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTIwIiBoZWlnaHQ9IjE0MCIgcng9IjI0IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNzIiIGN5PSI3MCIgcj0iMzgiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjE4KSIvPgogIDxwYXRoIGQ9Ik01MiA4OCBMNzIgMzQgTDkyIDg4IFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9Ii45NiIvPgogIDx0ZXh0IHg9IjEyNiIgeT0iODMiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmZmZmIj5BPC90ZXh0Pgo8L3N2Zz4="}, "fastcopy": {"logoDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJGYXN0Q29weSI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB4Mj0iMSIgeTE9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMTZhMzRhIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzExMTgyNyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUyMCIgaGVpZ2h0PSIxNDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIvPgogIDxjaXJjbGUgY3g9IjcyIiBjeT0iNzAiIHI9IjM4IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LC4xOCkiLz4KICA8cGF0aCBkPSJNNTIgODggTDcyIDM0IEw5MiA4OCBaIiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIuOTYiLz4KICA8dGV4dCB4PSIxMjYiIHk9IjgzIiBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MiIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZmZmZmZiI+RmFzdENvcHk8L3RleHQ+Cjwvc3ZnPg==", "faviconDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJGIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHgyPSIxIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxNmEzNGEiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTExODI3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTIwIiBoZWlnaHQ9IjE0MCIgcng9IjI0IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNzIiIGN5PSI3MCIgcj0iMzgiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjE4KSIvPgogIDxwYXRoIGQ9Ik01MiA4OCBMNzIgMzQgTDkyIDg4IFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9Ii45NiIvPgogIDx0ZXh0IHg9IjEyNiIgeT0iODMiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmZmZmIj5GPC90ZXh0Pgo8L3N2Zz4="}, "crsbrands": {"logoDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJDUlMgQnJhbmRzIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHgyPSIxIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNkYzI2MjYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTExODI3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTIwIiBoZWlnaHQ9IjE0MCIgcng9IjI0IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNzIiIGN5PSI3MCIgcj0iMzgiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjE4KSIvPgogIDxwYXRoIGQ9Ik01MiA4OCBMNzIgMzQgTDkyIDg4IFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9Ii45NiIvPgogIDx0ZXh0IHg9IjEyNiIgeT0iODMiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmZmZmIj5DUlMgQnJhbmRzPC90ZXh0Pgo8L3N2Zz4=", "faviconDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJDIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHgyPSIxIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNkYzI2MjYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTExODI3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTIwIiBoZWlnaHQ9IjE0MCIgcng9IjI0IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNzIiIGN5PSI3MCIgcj0iMzgiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjE4KSIvPgogIDxwYXRoIGQ9Ik01MiA4OCBMNzIgMzQgTDkyIDg4IFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9Ii45NiIvPgogIDx0ZXh0IHg9IjEyNiIgeT0iODMiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmZmZmIj5DPC90ZXh0Pgo8L3N2Zz4="}, "mhs": {"logoDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJNSFMgVEVDIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHgyPSIxIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3YzNhZWQiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTExODI3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTIwIiBoZWlnaHQ9IjE0MCIgcng9IjI0IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNzIiIGN5PSI3MCIgcj0iMzgiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjE4KSIvPgogIDxwYXRoIGQ9Ik01MiA4OCBMNzIgMzQgTDkyIDg4IFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9Ii45NiIvPgogIDx0ZXh0IHg9IjEyNiIgeT0iODMiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmZmZmIj5NSFMgVEVDPC90ZXh0Pgo8L3N2Zz4=", "faviconDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJNIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHgyPSIxIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3YzNhZWQiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTExODI3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTIwIiBoZWlnaHQ9IjE0MCIgcng9IjI0IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNzIiIGN5PSI3MCIgcj0iMzgiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjE4KSIvPgogIDxwYXRoIGQ9Ik01MiA4OCBMNzIgMzQgTDkyIDg4IFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9Ii45NiIvPgogIDx0ZXh0IHg9IjEyNiIgeT0iODMiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmZmZmIj5NPC90ZXh0Pgo8L3N2Zz4="}}};
 
-            if (window.__meshBrandingLoaded === true) {
-                if (typeof window.meshBrandingApply === 'function') { window.meshBrandingApply(); }
-                return;
+            function normalizeHost(host) {
+                return String(host || '').trim().toLowerCase().split(':')[0];
             }
-            window.__meshBrandingLoaded = true;
 
-            const CONFIG_URLS = [
-                '/plugins/mesh_branding/brand-config.json',
-                'plugins/mesh_branding/brand-config.json',
-                '/mesh_branding/brand-config.json'
-            ];
-
-            const embeddedConfig = {
-                defaultBrand: 'mesh.aplicado.com.br',
-                options: { applyFavicon: true, applyDocumentTitle: true, applyHeaderTitle: true, applyLogo: true, createFallbackBadge: true, debug: false },
-                domains: {
-                    'mesh.aplicado.com.br': { title: 'Aplicado Mesh', title2: 'Aplicado', logo: '/plugins/mesh_branding/assets/logos/aplicado.svg', favicon: '/plugins/mesh_branding/assets/favicons/aplicado.svg', primaryColor: '#2563eb', accentColor: '#0f172a', supportText: 'Ambiente principal' },
-                    'mesh.fastcopy.net.br': { title: 'FastCopy Mesh', title2: 'FastCopy', logo: '/plugins/mesh_branding/assets/logos/fastcopy.svg', favicon: '/plugins/mesh_branding/assets/favicons/fastcopy.svg', primaryColor: '#16a34a', accentColor: '#052e16', supportText: 'Acesso remoto FastCopy' },
-                    'mesh.crsbrands.com.br': { title: 'CRS Brands Mesh', title2: 'CRS Brands', logo: '/plugins/mesh_branding/assets/logos/crsbrands.svg', favicon: '/plugins/mesh_branding/assets/favicons/crsbrands.svg', primaryColor: '#dc2626', accentColor: '#450a0a', supportText: 'Ambiente CRS Brands' },
-                    'mesh.mhs.tec.br': { title: 'MHS TEC Mesh', title2: 'MHS TEC', logo: '/plugins/mesh_branding/assets/logos/mhs.svg', favicon: '/plugins/mesh_branding/assets/favicons/mhs.svg', primaryColor: '#7c3aed', accentColor: '#2e1065', supportText: 'Ambiente MHS TEC' }
+            function resolveBrand() {
+                var host = normalizeHost(window.location.hostname);
+                var domains = BRAND_CONFIG.domains || {};
+                var resolvedHost = host;
+                var brand = domains[host];
+                if (!brand) {
+                    var clean = host.replace(/^www\./, '');
+                    brand = domains[clean];
+                    resolvedHost = clean;
                 }
-            };
+                if (!brand) {
+                    resolvedHost = BRAND_CONFIG.defaultBrand;
+                    brand = domains[BRAND_CONFIG.defaultBrand];
+                }
+                if (!brand) {
+                    var keys = Object.keys(domains);
+                    resolvedHost = keys.length ? keys[0] : host;
+                    brand = keys.length ? domains[keys[0]] : {};
+                }
+                var key = brand.brandKey || 'aplicado';
+                var embedded = (BRAND_CONFIG.embeddedLogos || {})[key] || (BRAND_CONFIG.embeddedLogos || {}).aplicado || {};
+                return { host: resolvedHost, brand: brand, embedded: embedded };
+            }
 
-            function log(config, ...args) { if (config && config.options && config.options.debug) console.log('[MeshBranding]', ...args); }
-            async function fetchJson(url) { try { const r = await fetch(url, { cache: 'no-store', credentials: 'same-origin' }); if (!r.ok) return null; return await r.json(); } catch (e) { return null; } }
-            async function loadConfig() { for (const url of CONFIG_URLS) { const cfg = await fetchJson(url); if (cfg && cfg.domains) return cfg; } return embeddedConfig; }
-            function normalizeHost(host) { return String(host || '').trim().toLowerCase().split(':')[0]; }
-            function resolveBrand(config) { const host = normalizeHost(window.location.hostname); const domains = config.domains || {}; if (domains[host]) return { host, brand: domains[host] }; const clean = host.replace(/^www\./, ''); if (domains[clean]) return { host: clean, brand: domains[clean] }; const fb = config.defaultBrand && domains[config.defaultBrand] ? config.defaultBrand : Object.keys(domains)[0]; return { host: fb, brand: domains[fb] || {} }; }
-
-            function setFavicon(iconUrl) {
-                if (!iconUrl || !document.head) return;
-                document.querySelectorAll("link[rel='icon'],link[rel='shortcut icon'],link[rel='apple-touch-icon']").forEach(n => n.remove());
-                const link = document.createElement('link');
+            function setFavicon(dataUri) {
+                if (!dataUri || !document.head) return;
+                var links = document.querySelectorAll("link[rel='icon'],link[rel='shortcut icon'],link[rel='apple-touch-icon']");
+                for (var i = 0; i < links.length; i++) { links[i].parentNode.removeChild(links[i]); }
+                var link = document.createElement('link');
                 link.rel = 'icon';
-                link.type = iconUrl.endsWith('.svg') ? 'image/svg+xml' : 'image/png';
-                link.href = iconUrl + (iconUrl.indexOf('?') === -1 ? '?v=' : '&v=') + encodeURIComponent(Date.now());
+                link.type = 'image/svg+xml';
+                link.href = dataUri;
                 document.head.appendChild(link);
             }
 
-            function addStyle(brand) {
-                const root = document.documentElement;
+            function setStyle(brand) {
+                var root = document.documentElement;
                 if (brand.primaryColor) root.style.setProperty('--meshbranding-primary', brand.primaryColor);
                 if (brand.accentColor) root.style.setProperty('--meshbranding-accent', brand.accentColor);
-                if (!document.getElementById('meshbranding-style')) {
-                    const style = document.createElement('style');
+                var style = document.getElementById('meshbranding-style');
+                if (!style) {
+                    style = document.createElement('style');
                     style.id = 'meshbranding-style';
-                    style.textContent = `
-                        .meshbranding-badge{position:fixed;z-index:999999;left:12px;bottom:12px;display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:12px;background:rgba(255,255,255,.94);box-shadow:0 4px 18px rgba(15,23,42,.18);color:var(--meshbranding-accent,#0f172a);font:600 12px Arial,sans-serif}
-                        .meshbranding-badge img{height:24px;width:auto;max-width:120px;display:block}
-                        [data-meshbranding-logo-wrap]{display:flex!important;align-items:center!important;gap:8px!important}
-                        [data-meshbranding-logo-wrap] img{max-height:42px!important;width:auto!important;object-fit:contain!important}
-                    `;
+                    style.textContent = '' +
+                        '#p6title[data-meshbranding="1"]{display:flex!important;align-items:center!important;gap:14px!important;}' +
+                        '#MainMeshImage[data-meshbranding="1"]{width:260px!important;height:auto!important;max-height:86px!important;object-fit:contain!important;}' +
+                        '#p6title[data-meshbranding="1"] h1{color:var(--meshbranding-accent,#0f172a)!important;margin-left:0!important;}';
                     document.head.appendChild(style);
                 }
             }
 
-            function looksLikeMeshCentral(text) {
-                const t = String(text || '').trim().toLowerCase();
-                return !t || t === 'meshcentral' || t.indexOf('meshcentral') !== -1 || t === 'myserver' || t === 'servername' || t === 'meu servidor';
-            }
+            function applyBranding() {
+                var resolved = resolveBrand();
+                var brand = resolved.brand || {};
+                var embedded = resolved.embedded || {};
+                var options = BRAND_CONFIG.options || {};
 
-            function replaceHeaderTexts(brand) {
-                const title = brand.title2 || brand.title;
-                if (!title) return;
-                const selectors = ['#masthead .title','#masthead #title','#masthead span','#topbar .title','#topbar span','#header .title','#header span','#loginTitle','#loginTitle2','#title1','#title2','.headerTitle','.serverTitle','h1','h2'];
-                const visited = new Set();
-                selectors.forEach(sel => document.querySelectorAll(sel).forEach(el => {
-                    if (visited.has(el)) return; visited.add(el);
-                    if (el.children && el.children.length > 1) return;
-                    if (looksLikeMeshCentral(el.textContent)) { el.textContent = title; el.setAttribute('data-meshbranding','title'); }
-                }));
-            }
-
-            function replaceLogos(brand) {
-                if (!brand.logo) return 0;
-                const selectors = ['img[src*="logo"]','img[src*="Logo"]','img[src*="favicon"]','#masthead img','#header img','#topbar img','#login img','#loginpanel img','.logo img','.masthead img','.topbar img'];
-                const seen = new Set(); let count = 0;
-                selectors.forEach(sel => document.querySelectorAll(sel).forEach(img => {
-                    if (seen.has(img)) return; seen.add(img);
-                    const w = img.naturalWidth || img.width || 0;
-                    const h = img.naturalHeight || img.height || 0;
-                    const src = String(img.getAttribute('src') || '').toLowerCase();
-                    const likelyLogo = src.indexOf('logo') >= 0 || src.indexOf('favicon') >= 0 || w <= 420 || h <= 180;
-                    if (!likelyLogo) return;
-                    img.setAttribute('data-meshbranding-original-src', img.getAttribute('src') || '');
-                    img.src = brand.logo;
-                    img.alt = brand.title || brand.title2 || 'MeshCentral';
-                    img.style.maxHeight = img.style.maxHeight || '42px';
-                    img.style.objectFit = img.style.objectFit || 'contain';
-                    img.setAttribute('data-meshbranding','logo');
-                    if (img.parentElement) img.parentElement.setAttribute('data-meshbranding-logo-wrap','1');
-                    count += 1;
-                }));
-                return count;
-            }
-
-            function ensureFallbackBadge(config, brand) {
-                if (!config.options || !config.options.createFallbackBadge) return;
-                let badge = document.getElementById('meshbranding-badge');
-                if (!badge) { badge = document.createElement('div'); badge.id = 'meshbranding-badge'; badge.className = 'meshbranding-badge'; document.body.appendChild(badge); }
-                badge.innerHTML = '';
-                if (brand.logo) { const img = document.createElement('img'); img.src = brand.logo; img.alt = brand.title || brand.title2 || 'Brand'; badge.appendChild(img); }
-                const span = document.createElement('span'); span.textContent = brand.supportText || brand.title || brand.title2 || ''; badge.appendChild(span);
-            }
-
-            function applyBrand(config, brand) {
-                const o = config.options || {};
-                if (o.applyDocumentTitle !== false && brand.title) document.title = brand.title;
-                if (o.applyFavicon !== false) setFavicon(brand.favicon || brand.logo);
-                addStyle(brand);
-                if (o.applyHeaderTitle !== false) replaceHeaderTexts(brand);
-                let logoCount = 0;
-                if (o.applyLogo !== false) logoCount = replaceLogos(brand);
-                if (logoCount === 0) ensureFallbackBadge(config, brand);
-            }
-
-            loadConfig().then(config => {
-                const resolved = resolveBrand(config);
-                if (!resolved.brand) return;
-                window.__meshBrandingConfig = config;
                 window.__meshBrandingResolved = resolved;
-                log(config, 'host resolvido:', resolved.host, resolved.brand);
-                applyBrand(config, resolved.brand);
-                let cycles = 0;
-                const observer = new MutationObserver(() => { cycles += 1; if (cycles > 2000) return; applyBrand(config, resolved.brand); });
-                observer.observe(document.documentElement, { childList: true, subtree: true });
-                window.meshBrandingApply = () => applyBrand(config, resolved.brand);
-            });
-        })();
-    }
 
-    obj.onWebUIStartupEnd = function() { injectBrandingScript(); };
-    obj.goPageEnd = function() { injectBrandingScript(); };
+                if (options.applyDocumentTitle !== false && brand.documentTitle) {
+                    document.title = brand.documentTitle;
+                }
+
+                if (options.applyFavicon !== false) {
+                    setFavicon(embedded.faviconDataUri || embedded.logoDataUri);
+                }
+
+                setStyle(brand);
+
+                if (options.applyMainMeshImage !== false) {
+                    var img = document.getElementById('MainMeshImage');
+                    if (img && embedded.logoDataUri) {
+                        img.src = embedded.logoDataUri;
+                        img.alt = brand.mainTitle || brand.documentTitle || 'MeshCentral';
+                        img.setAttribute('data-meshbranding', '1');
+                    }
+                }
+
+                if (options.applyMainTitle !== false && brand.mainTitle) {
+                    var title = document.querySelector('#p6title h1');
+                    if (title) { title.innerText = brand.mainTitle; }
+                }
+
+                var wrap = document.getElementById('p6title');
+                if (wrap) { wrap.setAttribute('data-meshbranding', '1'); }
+            }
+
+            window.meshBrandingApply = applyBranding;
+            applyBranding();
+
+            if (!window.__meshBrandingObserverStarted) {
+                window.__meshBrandingObserverStarted = true;
+                var pending = false;
+                var observer = new MutationObserver(function() {
+                    if (pending) return;
+                    pending = true;
+                    setTimeout(function() { pending = false; applyBranding(); }, 50);
+                });
+                observer.observe(document.documentElement, { childList: true, subtree: true });
+            }
+        })();
+    };
+
+    obj.goPageEnd = function() {
+        (function() {
+            'use strict';
+            var BRAND_CONFIG = {"defaultBrand": "mesh.aplicado.com.br", "options": {"applyFavicon": true, "applyDocumentTitle": true, "applyMainMeshImage": true, "applyMainTitle": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"brandKey": "aplicado", "documentTitle": "Acesso Remoto - Aplicado", "mainTitle": "Aplicado", "primaryColor": "#2563eb", "accentColor": "#0f172a"}, "mesh.fastcopy.net.br": {"brandKey": "fastcopy", "documentTitle": "Acesso Remoto - FastCopy", "mainTitle": "FastCopy", "primaryColor": "#16a34a", "accentColor": "#052e16"}, "mesh.crsbrands.com.br": {"brandKey": "crsbrands", "documentTitle": "Acesso Remoto - CRS Brands", "mainTitle": "CRS Brands", "primaryColor": "#dc2626", "accentColor": "#450a0a"}, "mesh.mhs.tec.br": {"brandKey": "mhs", "documentTitle": "Acesso Remoto - MHS TEC", "mainTitle": "MHS TEC", "primaryColor": "#7c3aed", "accentColor": "#2e1065"}}, "embeddedLogos": {"aplicado": {"logoDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJBcGxpY2FkbyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB4Mj0iMSIgeTE9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMjU2M2ViIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzExMTgyNyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUyMCIgaGVpZ2h0PSIxNDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIvPgogIDxjaXJjbGUgY3g9IjcyIiBjeT0iNzAiIHI9IjM4IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LC4xOCkiLz4KICA8cGF0aCBkPSJNNTIgODggTDcyIDM0IEw5MiA4OCBaIiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIuOTYiLz4KICA8dGV4dCB4PSIxMjYiIHk9IjgzIiBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MiIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZmZmZmZiI+QXBsaWNhZG88L3RleHQ+Cjwvc3ZnPg==", "faviconDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJBIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHgyPSIxIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyNTYzZWIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTExODI3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTIwIiBoZWlnaHQ9IjE0MCIgcng9IjI0IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNzIiIGN5PSI3MCIgcj0iMzgiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjE4KSIvPgogIDxwYXRoIGQ9Ik01MiA4OCBMNzIgMzQgTDkyIDg4IFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9Ii45NiIvPgogIDx0ZXh0IHg9IjEyNiIgeT0iODMiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmZmZmIj5BPC90ZXh0Pgo8L3N2Zz4="}, "fastcopy": {"logoDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJGYXN0Q29weSI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB4Mj0iMSIgeTE9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMTZhMzRhIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzExMTgyNyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUyMCIgaGVpZ2h0PSIxNDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIvPgogIDxjaXJjbGUgY3g9IjcyIiBjeT0iNzAiIHI9IjM4IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LC4xOCkiLz4KICA8cGF0aCBkPSJNNTIgODggTDcyIDM0IEw5MiA4OCBaIiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIuOTYiLz4KICA8dGV4dCB4PSIxMjYiIHk9IjgzIiBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MiIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZmZmZmZiI+RmFzdENvcHk8L3RleHQ+Cjwvc3ZnPg==", "faviconDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJGIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHgyPSIxIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxNmEzNGEiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTExODI3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTIwIiBoZWlnaHQ9IjE0MCIgcng9IjI0IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNzIiIGN5PSI3MCIgcj0iMzgiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjE4KSIvPgogIDxwYXRoIGQ9Ik01MiA4OCBMNzIgMzQgTDkyIDg4IFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9Ii45NiIvPgogIDx0ZXh0IHg9IjEyNiIgeT0iODMiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmZmZmIj5GPC90ZXh0Pgo8L3N2Zz4="}, "crsbrands": {"logoDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJDUlMgQnJhbmRzIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHgyPSIxIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNkYzI2MjYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTExODI3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTIwIiBoZWlnaHQ9IjE0MCIgcng9IjI0IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNzIiIGN5PSI3MCIgcj0iMzgiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjE4KSIvPgogIDxwYXRoIGQ9Ik01MiA4OCBMNzIgMzQgTDkyIDg4IFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9Ii45NiIvPgogIDx0ZXh0IHg9IjEyNiIgeT0iODMiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmZmZmIj5DUlMgQnJhbmRzPC90ZXh0Pgo8L3N2Zz4=", "faviconDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJDIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHgyPSIxIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNkYzI2MjYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTExODI3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTIwIiBoZWlnaHQ9IjE0MCIgcng9IjI0IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNzIiIGN5PSI3MCIgcj0iMzgiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjE4KSIvPgogIDxwYXRoIGQ9Ik01MiA4OCBMNzIgMzQgTDkyIDg4IFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9Ii45NiIvPgogIDx0ZXh0IHg9IjEyNiIgeT0iODMiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmZmZmIj5DPC90ZXh0Pgo8L3N2Zz4="}, "mhs": {"logoDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJNSFMgVEVDIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHgyPSIxIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3YzNhZWQiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTExODI3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTIwIiBoZWlnaHQ9IjE0MCIgcng9IjI0IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNzIiIGN5PSI3MCIgcj0iMzgiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjE4KSIvPgogIDxwYXRoIGQ9Ik01MiA4OCBMNzIgMzQgTDkyIDg4IFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9Ii45NiIvPgogIDx0ZXh0IHg9IjEyNiIgeT0iODMiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmZmZmIj5NSFMgVEVDPC90ZXh0Pgo8L3N2Zz4=", "faviconDataUri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgNTIwIDE0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJNIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHgyPSIxIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3YzNhZWQiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTExODI3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTIwIiBoZWlnaHQ9IjE0MCIgcng9IjI0IiBmaWxsPSJ1cmwoI2cpIi8+CiAgPGNpcmNsZSBjeD0iNzIiIGN5PSI3MCIgcj0iMzgiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjE4KSIvPgogIDxwYXRoIGQ9Ik01MiA4OCBMNzIgMzQgTDkyIDg4IFoiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9Ii45NiIvPgogIDx0ZXh0IHg9IjEyNiIgeT0iODMiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmZmZmIj5NPC90ZXh0Pgo8L3N2Zz4="}}};
+
+            function normalizeHost(host) {
+                return String(host || '').trim().toLowerCase().split(':')[0];
+            }
+
+            function resolveBrand() {
+                var host = normalizeHost(window.location.hostname);
+                var domains = BRAND_CONFIG.domains || {};
+                var resolvedHost = host;
+                var brand = domains[host];
+                if (!brand) {
+                    var clean = host.replace(/^www\./, '');
+                    brand = domains[clean];
+                    resolvedHost = clean;
+                }
+                if (!brand) {
+                    resolvedHost = BRAND_CONFIG.defaultBrand;
+                    brand = domains[BRAND_CONFIG.defaultBrand];
+                }
+                if (!brand) {
+                    var keys = Object.keys(domains);
+                    resolvedHost = keys.length ? keys[0] : host;
+                    brand = keys.length ? domains[keys[0]] : {};
+                }
+                var key = brand.brandKey || 'aplicado';
+                var embedded = (BRAND_CONFIG.embeddedLogos || {})[key] || (BRAND_CONFIG.embeddedLogos || {}).aplicado || {};
+                return { host: resolvedHost, brand: brand, embedded: embedded };
+            }
+
+            function setFavicon(dataUri) {
+                if (!dataUri || !document.head) return;
+                var links = document.querySelectorAll("link[rel='icon'],link[rel='shortcut icon'],link[rel='apple-touch-icon']");
+                for (var i = 0; i < links.length; i++) { links[i].parentNode.removeChild(links[i]); }
+                var link = document.createElement('link');
+                link.rel = 'icon';
+                link.type = 'image/svg+xml';
+                link.href = dataUri;
+                document.head.appendChild(link);
+            }
+
+            function setStyle(brand) {
+                var root = document.documentElement;
+                if (brand.primaryColor) root.style.setProperty('--meshbranding-primary', brand.primaryColor);
+                if (brand.accentColor) root.style.setProperty('--meshbranding-accent', brand.accentColor);
+                var style = document.getElementById('meshbranding-style');
+                if (!style) {
+                    style = document.createElement('style');
+                    style.id = 'meshbranding-style';
+                    style.textContent = '' +
+                        '#p6title[data-meshbranding="1"]{display:flex!important;align-items:center!important;gap:14px!important;}' +
+                        '#MainMeshImage[data-meshbranding="1"]{width:260px!important;height:auto!important;max-height:86px!important;object-fit:contain!important;}' +
+                        '#p6title[data-meshbranding="1"] h1{color:var(--meshbranding-accent,#0f172a)!important;margin-left:0!important;}';
+                    document.head.appendChild(style);
+                }
+            }
+
+            function applyBranding() {
+                var resolved = resolveBrand();
+                var brand = resolved.brand || {};
+                var embedded = resolved.embedded || {};
+                var options = BRAND_CONFIG.options || {};
+
+                window.__meshBrandingResolved = resolved;
+
+                if (options.applyDocumentTitle !== false && brand.documentTitle) {
+                    document.title = brand.documentTitle;
+                }
+
+                if (options.applyFavicon !== false) {
+                    setFavicon(embedded.faviconDataUri || embedded.logoDataUri);
+                }
+
+                setStyle(brand);
+
+                if (options.applyMainMeshImage !== false) {
+                    var img = document.getElementById('MainMeshImage');
+                    if (img && embedded.logoDataUri) {
+                        img.src = embedded.logoDataUri;
+                        img.alt = brand.mainTitle || brand.documentTitle || 'MeshCentral';
+                        img.setAttribute('data-meshbranding', '1');
+                    }
+                }
+
+                if (options.applyMainTitle !== false && brand.mainTitle) {
+                    var title = document.querySelector('#p6title h1');
+                    if (title) { title.innerText = brand.mainTitle; }
+                }
+
+                var wrap = document.getElementById('p6title');
+                if (wrap) { wrap.setAttribute('data-meshbranding', '1'); }
+            }
+
+            window.meshBrandingApply = applyBranding;
+            applyBranding();
+
+            if (!window.__meshBrandingObserverStarted) {
+                window.__meshBrandingObserverStarted = true;
+                var pending = false;
+                var observer = new MutationObserver(function() {
+                    if (pending) return;
+                    pending = true;
+                    setTimeout(function() { pending = false; applyBranding(); }, 50);
+                });
+                observer.observe(document.documentElement, { childList: true, subtree: true });
+            }
+        })();
+    };
 
     return obj;
 };
