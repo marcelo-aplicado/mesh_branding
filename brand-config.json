@@ -4,8 +4,9 @@
     "applyFavicon": true,
     "applyDocumentTitle": true,
     "applyMastheadLogo": true,
-    "applyMainTitle": false,
-    "applyMainCardLogo": false,
+    "replaceBrandingImages": true,
+    "replaceBrandingBackgrounds": true,
+    "preserveInternalTitles": true,
     "debug": false
   },
   "domains": {

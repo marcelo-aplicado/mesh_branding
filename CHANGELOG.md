@@ -1,12 +1,17 @@
 # Changelog
 
+## 2.0.0
+
+- Implementado modo global de substituição de imagens de branding.
+- Substitui imagens com `serverpic.ashx`, `loginpic.ashx`, `titlepic.ashx`, `logo`, `loginlogo` e `MainMeshImage`.
+- Substitui backgrounds de branding quando detectados.
+- Mantém `document.title`, favicon e masthead por subdomínio.
+- Preserva textos internos como "Meu Servidor".
+- ZIP gerado com arquivos diretamente na raiz.
+
 ## 1.0.5
 
-- Removida alteração do título interno `#p6title h1`.
-- Removida alteração do logo interno `#MainMeshImage`.
-- Preservado o padrão visual interno "Meu Servidor" do MeshCentral.
-- Mantidos favicon, `document.title` e logo do masthead por subdomínio.
-- ZIP gerado com arquivos diretamente na raiz.
+- Preservado o título interno padrão do MeshCentral.
 
 ## 1.0.4
 

@@ -1,6 +1,6 @@
 # MeshCentral Mesh Branding
 
-Plugin para aplicar logotipo do topo, título da aba do navegador e favicon por subdomínio em uma única instalação do MeshCentral.
+Plugin de branding global por subdomínio para MeshCentral.
 
 ## Instalação
 
@@ -10,27 +10,29 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## Versão 1.0.5
+## Versão 2.0.0
 
-A versão 1.0.5 mantém o título interno padrão do MeshCentral, ou seja, não altera mais `#p6title h1` nem `#MainMeshImage`.
+Esta versão aplica o branding de forma global. Em vez de alterar apenas um ponto específico da tela, o plugin procura imagens de branding em qualquer página, incluindo login e telas internas, e troca por SVG embutido no próprio JavaScript.
 
-O plugin altera somente:
+O plugin altera:
 
 - favicon da aba;
-- `document.title`, texto ao lado do favicon na aba do navegador;
-- logo do topo dentro de `#masthead`.
+- `document.title`, título ao lado do favicon;
+- logo do topo dentro de `#masthead`;
+- imagens de branding com `serverpic.ashx`, `loginpic.ashx`, `titlepic.ashx`, `logo`, `loginlogo` e `MainMeshImage`.
 
-## Importante sobre o ZIP
+O plugin não altera textos internos como `Meu Servidor`.
 
-Este ZIP foi gerado com os arquivos diretamente na raiz, sem uma pasta adicional envolvendo o projeto.
+## ZIP
 
-## Teste no Console
+Este ZIP está com os arquivos diretamente na raiz, sem pasta extra.
+
+## Testes úteis no Console
 
 ```javascript
 window.meshBrandingApply && window.meshBrandingApply();
 window.__meshBrandingResolved;
-document.title;
-document.querySelector('#p6title h1')?.innerText;
+Array.from(document.querySelectorAll('img[data-meshbranding-replaced="1"]')).map(x => x.getAttribute('data-meshbranding-original-src'));
 ```
 
 ## Licença
