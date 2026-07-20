@@ -1,6 +1,6 @@
 # MeshCentral Mesh Branding
 
-Plugin para aplicar **logotipo, título e favicon por subdomínio** em uma única instalação do MeshCentral.
+Plugin para aplicar logotipo, título e favicon por subdomínio em uma única instalação do MeshCentral.
 
 ## Instalação
 
@@ -10,29 +10,18 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## O que mudou na versão 1.0.3
+## Versão 1.0.4
 
-A versão 1.0.3 remove a dependência de carregar imagens por `/plugins/mesh_branding/assets/...` porque a instalação retornou `404 Not Found` nesse caminho.
+A versão 1.0.4 muda o foco do logotipo do card `#MainMeshImage` para o logotipo real do topo da interface, dentro de `#masthead`.
 
-Agora os SVGs do repositório continuam em `assets/logos` e `assets/favicons`, mas também são embutidos dentro de `mesh_branding.js` como `data:image/svg+xml;base64,...`.
+O plugin agora:
 
-## Elementos alterados no MeshCentral
-
-A versão foi ajustada para a interface real encontrada no MeshCentral 1.2.1:
-
-```html
-<div id="p6title">
-    <img id="MainMeshImage" src="serverpic.ashx">
-    <h1>Meu Servidor</h1>
-</div>
-```
-
-O plugin altera diretamente:
-
-- `#MainMeshImage`
-- `#p6title h1`
-- `document.title`
-- favicon do navegador
+- altera o favicon;
+- altera `document.title`;
+- altera o título `#p6title h1`;
+- injeta o logotipo correto no `#masthead`;
+- não altera mais o logo do card interno por padrão;
+- mantém os SVGs embutidos no JavaScript como `data:image/svg+xml;base64`.
 
 ## Domínios configurados
 
@@ -41,26 +30,13 @@ O plugin altera diretamente:
 - `mesh.crsbrands.com.br` -> CRS Brands
 - `mesh.mhs.tec.br` -> MHS TEC
 
-## Arquivos importantes
-
-```text
-config.json          # usado pelo MeshCentral para instalar/atualizar
-mesh_branding.js     # plugin com SVGs embutidos
-brand-config.json    # configuração documentada das marcas
-assets/logos/*.svg   # SVGs utilizados como base
-assets/favicons/*.svg
-```
-
-## Teste no navegador
-
-No Console do navegador:
+## Teste no Console
 
 ```javascript
 window.meshBrandingApply && window.meshBrandingApply();
 window.__meshBrandingResolved;
+document.getElementById('meshbranding-masthead-logo');
 ```
-
-Se `window.__meshBrandingResolved` retornar o host e a marca, o plugin está ativo no navegador.
 
 ## Licença
 

@@ -1,9 +1,9 @@
 {
   "name": "MeshCentral Mesh Branding",
   "shortName": "mesh_branding",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "Marcelo Henrique da Silva / CRS Brands",
-  "description": "Aplica logotipo, título e favicon diferentes no MeshCentral conforme o subdomínio acessado. Os SVGs ficam embutidos no JavaScript para evitar 404 em /plugins.",
+  "description": "Aplica logotipo do masthead, título e favicon por subdomínio. SVGs embutidos no JavaScript para evitar 404 em /plugins.",
   "hasAdminPanel": false,
   "homepage": "https://github.com/marcelo-aplicado/mesh_branding",
   "changelogUrl": "https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/CHANGELOG.md",
