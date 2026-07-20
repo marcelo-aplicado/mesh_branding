@@ -1,6 +1,6 @@
 # MeshCentral Mesh Branding
 
-Plugin de branding global por subdomínio para MeshCentral.
+Plugin de branding por subdomínio para MeshCentral usando logotipos armazenados em `meshcentral-data`.
 
 ## Instalação
 
@@ -10,32 +10,72 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## Versão 2.0.1
+## Versão 3.0.0
 
-Esta versão mantém o modo global da v2.0.0 e adiciona uma mitigação para o efeito visual em que o login mostra um logo nativo e depois troca para outro.
+Esta versão remove os logos embutidos e passa a procurar os arquivos em `meshcentral-data`. Se o arquivo do domínio não existir, o plugin **não altera o logotipo**, mantendo o padrão do MeshCentral.
 
-O plugin agora:
+## Onde colocar os logotipos
 
-- oculta imagens nativas de branding enquanto ainda não foram substituídas;
-- substitui imagens com `serverpic.ashx`, `loginpic.ashx`, `titlepic.ashx`, `logo`, `loginlogo` e `MainMeshImage`;
-- substitui backgrounds de branding quando detectados;
-- mantém favicon, `document.title` e logo do `#masthead` por subdomínio;
-- preserva textos internos como `Meu Servidor`.
+Dentro do container, o diretório base é normalmente:
 
-## Observação importante
+```text
+/opt/meshcentral/meshcentral-data
+```
 
-Como o MeshCentral carrega primeiro o HTML nativo e depois executa plugins de Web UI, esta versão reduz bastante a troca visual no navegador. Para eliminar o flash em nível absoluto, o ideal seria alterar a origem servida por `serverpic.ashx/loginpic.ashx` no backend ou no proxy reverso.
+No host Docker do seu ambiente, esse mesmo volume corresponde a:
+
+```text
+/opt/docker/meshcentral/meshcentral-data
+```
+
+Estrutura recomendada:
+
+```text
+/opt/docker/meshcentral/meshcentral-data/mesh_branding/logos/aplicado.svg
+/opt/docker/meshcentral/meshcentral-data/mesh_branding/logos/fastcopy.svg
+/opt/docker/meshcentral/meshcentral-data/mesh_branding/logos/crsbrands.svg
+/opt/docker/meshcentral/meshcentral-data/mesh_branding/logos/mhs.svg
+```
+
+Favicons opcionais:
+
+```text
+/opt/docker/meshcentral/meshcentral-data/mesh_branding/favicons/aplicado.svg
+/opt/docker/meshcentral/meshcentral-data/mesh_branding/favicons/fastcopy.svg
+/opt/docker/meshcentral/meshcentral-data/mesh_branding/favicons/crsbrands.svg
+/opt/docker/meshcentral/meshcentral-data/mesh_branding/favicons/mhs.svg
+```
+
+## O que o plugin altera
+
+- `document.title` por subdomínio;
+- favicon, se existir arquivo específico;
+- imagens de branding, se existir logo específico;
+- logo do topo, se existir logo específico.
+
+## O que o plugin não altera
+
+- background;
+- cores do tema;
+- título interno `Meu Servidor`;
+- imagens comuns de ícones, usuários, grupos ou plugins.
+
+## Endpoints registrados pelo plugin
+
+```text
+/mesh_branding/logo
+/mesh_branding/favicon
+```
 
 ## ZIP
 
 Este ZIP está com os arquivos diretamente na raiz, sem pasta extra.
 
-## Teste útil no Console
+## Teste no navegador
 
 ```javascript
 window.meshBrandingApply && window.meshBrandingApply();
 window.__meshBrandingResolved;
-Array.from(document.querySelectorAll('img[data-meshbranding-replaced="1"]')).map(x => x.getAttribute('data-meshbranding-original-src'));
 ```
 
 ## Licença
