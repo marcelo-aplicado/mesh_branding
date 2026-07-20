@@ -4,7 +4,7 @@
     "applyFavicon": true,
     "applyDocumentTitle": true,
     "applyMastheadLogo": true,
-    "applyMainTitle": true,
+    "applyMainTitle": false,
     "applyMainCardLogo": false,
     "debug": false
   },
@@ -12,28 +12,24 @@
     "mesh.aplicado.com.br": {
       "brandKey": "aplicado",
       "documentTitle": "Acesso Remoto - Aplicado",
-      "mainTitle": "Aplicado",
       "primaryColor": "#2563eb",
       "accentColor": "#143a73"
     },
     "mesh.fastcopy.net.br": {
       "brandKey": "fastcopy",
       "documentTitle": "Acesso Remoto - FastCopy",
-      "mainTitle": "FastCopy",
       "primaryColor": "#16a34a",
       "accentColor": "#052e16"
     },
     "mesh.crsbrands.com.br": {
       "brandKey": "crsbrands",
       "documentTitle": "Acesso Remoto - CRS Brands",
-      "mainTitle": "CRS Brands",
       "primaryColor": "#dc2626",
       "accentColor": "#450a0a"
     },
     "mesh.mhs.tec.br": {
       "brandKey": "mhs",
       "documentTitle": "Acesso Remoto - MHS TEC",
-      "mainTitle": "MHS TEC",
       "primaryColor": "#7c3aed",
       "accentColor": "#2e1065"
     }

@@ -1,17 +1,20 @@
 # Changelog
 
+## 1.0.5
+
+- Removida alteração do título interno `#p6title h1`.
+- Removida alteração do logo interno `#MainMeshImage`.
+- Preservado o padrão visual interno "Meu Servidor" do MeshCentral.
+- Mantidos favicon, `document.title` e logo do masthead por subdomínio.
+- ZIP gerado com arquivos diretamente na raiz.
+
 ## 1.0.4
 
-- Logotipo principal agora é aplicado em `#masthead`.
-- `#MainMeshImage` não é mais alterado por padrão.
-- Mantido favicon via SVG embutido.
-- Mantido título principal via `#p6title h1`.
-- Mantido export compatível com MeshCentral 1.2.1.
+- Logotipo principal aplicado em `#masthead`.
 
 ## 1.0.3
 
 - Logos SVG embutidos no `mesh_branding.js` como data URI.
-- Ajuste inicial para `#MainMeshImage` e `#p6title h1`.
 
 ## 1.0.2
 
