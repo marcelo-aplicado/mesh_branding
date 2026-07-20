@@ -10,24 +10,27 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## Versão 2.0.0
+## Versão 2.0.1
 
-Esta versão aplica o branding de forma global. Em vez de alterar apenas um ponto específico da tela, o plugin procura imagens de branding em qualquer página, incluindo login e telas internas, e troca por SVG embutido no próprio JavaScript.
+Esta versão mantém o modo global da v2.0.0 e adiciona uma mitigação para o efeito visual em que o login mostra um logo nativo e depois troca para outro.
 
-O plugin altera:
+O plugin agora:
 
-- favicon da aba;
-- `document.title`, título ao lado do favicon;
-- logo do topo dentro de `#masthead`;
-- imagens de branding com `serverpic.ashx`, `loginpic.ashx`, `titlepic.ashx`, `logo`, `loginlogo` e `MainMeshImage`.
+- oculta imagens nativas de branding enquanto ainda não foram substituídas;
+- substitui imagens com `serverpic.ashx`, `loginpic.ashx`, `titlepic.ashx`, `logo`, `loginlogo` e `MainMeshImage`;
+- substitui backgrounds de branding quando detectados;
+- mantém favicon, `document.title` e logo do `#masthead` por subdomínio;
+- preserva textos internos como `Meu Servidor`.
 
-O plugin não altera textos internos como `Meu Servidor`.
+## Observação importante
+
+Como o MeshCentral carrega primeiro o HTML nativo e depois executa plugins de Web UI, esta versão reduz bastante a troca visual no navegador. Para eliminar o flash em nível absoluto, o ideal seria alterar a origem servida por `serverpic.ashx/loginpic.ashx` no backend ou no proxy reverso.
 
 ## ZIP
 
 Este ZIP está com os arquivos diretamente na raiz, sem pasta extra.
 
-## Testes úteis no Console
+## Teste útil no Console
 
 ```javascript
 window.meshBrandingApply && window.meshBrandingApply();

@@ -6,6 +6,7 @@
     "applyMastheadLogo": true,
     "replaceBrandingImages": true,
     "replaceBrandingBackgrounds": true,
+    "hideNativeBrandingUntilApplied": true,
     "preserveInternalTitles": true,
     "debug": false
   },
