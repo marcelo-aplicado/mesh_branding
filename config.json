@@ -1,7 +1,7 @@
 {
   "name": "MeshCentral Mesh Branding",
   "shortName": "mesh_branding",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Marcelo Henrique da Silva / CRS Brands",
   "description": "Aplica logotipo, título, favicon e cores diferentes no MeshCentral conforme o subdomínio acessado, mantendo a mesma instância e a mesma base de dados.",
   "hasAdminPanel": false,

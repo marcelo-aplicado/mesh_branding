@@ -2,16 +2,26 @@
 
 Plugin para aplicar **logotipo, título, favicon, cores e texto de apoio por subdomínio** em uma única instalação do MeshCentral.
 
-Repositório esperado:
+## URL de instalação
 
-```text
-marcelo-aplicado/mesh_branding
-```
-
-URL de instalação pela interface gráfica do MeshCentral:
+Use esta URL na interface gráfica do MeshCentral:
 
 ```text
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
+```
+
+## Correção da versão 1.0.2
+
+A versão 1.0.2 corrige o carregamento no MeshCentral 1.2.1. O `pluginHandler.js` espera que o módulo exporte uma função com o nome do `shortName`:
+
+```javascript
+module.exports.mesh_branding = function(parent) { ... }
+```
+
+A versão anterior usava `module.exports = function`, o que causava o erro:
+
+```text
+TypeError: require(...)[plugin.shortName] is not a function
 ```
 
 ## Cenário atendido
@@ -42,38 +52,11 @@ mesh_branding/
 
 ## Configuração das marcas
 
-Edite `brand-config.json`:
-
-```json
-{
-  "defaultBrand": "mesh.aplicado.com.br",
-  "options": {
-    "applyFavicon": true,
-    "applyDocumentTitle": true,
-    "applyHeaderTitle": true,
-    "applyLogo": true,
-    "createFallbackBadge": true,
-    "debug": false
-  },
-  "domains": {
-    "mesh.aplicado.com.br": {
-      "title": "Aplicado Mesh",
-      "title2": "Aplicado",
-      "logo": "/plugins/mesh_branding/assets/logos/aplicado.svg",
-      "favicon": "/plugins/mesh_branding/assets/favicons/aplicado.svg",
-      "primaryColor": "#2563eb",
-      "accentColor": "#0f172a",
-      "supportText": "Ambiente principal"
-    }
-  }
-}
-```
+Edite `brand-config.json` para alterar títulos, favicon, logo e cores.
 
 ## Instalação no MeshCentral
 
-### 1. Ative plugins no MeshCentral
-
-No `config.json` do MeshCentral, em `settings`:
+1. Confirme que plugins estão ativos no `config.json` do MeshCentral:
 
 ```json
 {
@@ -85,44 +68,35 @@ No `config.json` do MeshCentral, em `settings`:
 }
 ```
 
-Reinicie o MeshCentral após alterar essa configuração.
-
-### 2. Publique este projeto no GitHub
-
-O repositório deve ser:
+2. Publique este projeto no GitHub:
 
 ```text
 https://github.com/marcelo-aplicado/mesh_branding
 ```
 
-### 3. Instale pela interface gráfica
-
-No MeshCentral:
+3. No MeshCentral:
 
 ```text
 My Server -> Plugins -> Download plugin
 ```
 
-Informe exatamente:
+4. Informe exatamente:
 
 ```text
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-Depois habilite o plugin.
-
-## Atualização
-
-1. Altere `brand-config.json`, logos ou o código.
-2. Incremente a versão no `config.json`.
-3. Faça commit e push no GitHub.
-4. Atualize o plugin pela interface do MeshCentral.
+5. Reinicie o MeshCentral após atualizar o plugin.
 
 ## Teste rápido
 
-Acesse os subdomínios e confira título, favicon e identidade visual.
+Após reiniciar, confira se o erro desapareceu do log. No navegador, você pode executar:
 
-No console do navegador, você pode reaplicar manualmente:
+```javascript
+window.meshBrandingApply
+```
+
+Se retornar uma função, o script chegou ao navegador. Para reaplicar manualmente:
 
 ```javascript
 window.meshBrandingApply && window.meshBrandingApply();
