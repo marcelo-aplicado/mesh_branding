@@ -1,35 +1,14 @@
 # Changelog
 
+## 3.0.1
+
+- Teste simplificado com `meshcentral-data/mesh_branding/Aplicado_Logo.png`.
+- Por domínio, cada host aponta para um arquivo específico em `brand-config.json`.
+- Se o arquivo não existir, o plugin mantém o logo padrão.
+- Removida lógica de favicon customizado nesta versão de teste.
+- Removidas alterações de background, cores e textos internos.
+- Proteção contra loop de 404 no navegador.
+
 ## 3.0.0
 
-- Logos deixam de ficar embutidos no plugin.
-- Plugin procura logos em `meshcentral-data`.
-- Se o logo não existir, mantém o padrão do MeshCentral.
-- Removida alteração de background e cores do tema.
-- Preservado `Meu Servidor`.
-- Adicionados endpoints `/mesh_branding/logo` e `/mesh_branding/favicon`.
-- ZIP gerado com arquivos diretamente na raiz.
-
-## 2.0.1
-
-- Mitigação de flash visual no login.
-
-## 2.0.0
-
-- Modo global de substituição de imagens de branding.
-
-## 1.0.5
-
-- Preservado o título interno padrão do MeshCentral.
-
-## 1.0.4
-
-- Logotipo principal aplicado em `#masthead`.
-
-## 1.0.3
-
-- Logos SVG embutidos no JavaScript.
-
-## 1.0.2
-
-- Corrigido export `module.exports.mesh_branding = function(parent)`.
+- Primeira tentativa usando rotas para logos em `meshcentral-data`.

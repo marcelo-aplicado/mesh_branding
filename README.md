@@ -1,6 +1,6 @@
 # MeshCentral Mesh Branding
 
-Plugin de branding por subdomínio para MeshCentral usando logotipos armazenados em `meshcentral-data`.
+Plugin de branding por subdomínio usando logotipos armazenados em `meshcentral-data/mesh_branding`.
 
 ## Instalação
 
@@ -10,74 +10,44 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## Versão 3.0.0
+## Teste proposto
 
-Esta versão remove os logos embutidos e passa a procurar os arquivos em `meshcentral-data`. Se o arquivo do domínio não existir, o plugin **não altera o logotipo**, mantendo o padrão do MeshCentral.
-
-## Onde colocar os logotipos
-
-Dentro do container, o diretório base é normalmente:
+Arquivo existente:
 
 ```text
-/opt/meshcentral/meshcentral-data
+/opt/docker/meshcentral/meshcentral-data/mesh_branding/Aplicado_Logo.png
 ```
 
-No host Docker do seu ambiente, esse mesmo volume corresponde a:
+Resultado esperado:
+
+- `mesh.aplicado.com.br` usa `Aplicado_Logo.png`.
+- `mesh.fastcopy.net.br` não possui `FastCopy_Logo.png`, então mantém o logo padrão do MeshCentral.
+
+## Importante
+
+Esta versão:
+
+- não altera background;
+- não altera cores;
+- não altera `Meu Servidor`;
+- não faz loop infinito de 404: se `/mesh_branding/logo` retornar 404 uma vez, o navegador para de tentar naquela página.
+
+## Testes
+
+Após reiniciar o MeshCentral, teste:
 
 ```text
-/opt/docker/meshcentral/meshcentral-data
+https://mesh.aplicado.com.br/mesh_branding/logo?host=mesh.aplicado.com.br
 ```
 
-Estrutura recomendada:
+Deve abrir a imagem `Aplicado_Logo.png`.
 
 ```text
-/opt/docker/meshcentral/meshcentral-data/mesh_branding/logos/aplicado.svg
-/opt/docker/meshcentral/meshcentral-data/mesh_branding/logos/fastcopy.svg
-/opt/docker/meshcentral/meshcentral-data/mesh_branding/logos/crsbrands.svg
-/opt/docker/meshcentral/meshcentral-data/mesh_branding/logos/mhs.svg
+https://mesh.fastcopy.net.br/mesh_branding/logo?host=mesh.fastcopy.net.br
 ```
 
-Favicons opcionais:
-
-```text
-/opt/docker/meshcentral/meshcentral-data/mesh_branding/favicons/aplicado.svg
-/opt/docker/meshcentral/meshcentral-data/mesh_branding/favicons/fastcopy.svg
-/opt/docker/meshcentral/meshcentral-data/mesh_branding/favicons/crsbrands.svg
-/opt/docker/meshcentral/meshcentral-data/mesh_branding/favicons/mhs.svg
-```
-
-## O que o plugin altera
-
-- `document.title` por subdomínio;
-- favicon, se existir arquivo específico;
-- imagens de branding, se existir logo específico;
-- logo do topo, se existir logo específico.
-
-## O que o plugin não altera
-
-- background;
-- cores do tema;
-- título interno `Meu Servidor`;
-- imagens comuns de ícones, usuários, grupos ou plugins.
-
-## Endpoints registrados pelo plugin
-
-```text
-/mesh_branding/logo
-/mesh_branding/favicon
-```
+Deve retornar 404 e o MeshCentral deve manter o logo padrão.
 
 ## ZIP
 
 Este ZIP está com os arquivos diretamente na raiz, sem pasta extra.
-
-## Teste no navegador
-
-```javascript
-window.meshBrandingApply && window.meshBrandingApply();
-window.__meshBrandingResolved;
-```
-
-## Licença
-
-MIT
