@@ -1,12 +1,13 @@
 # Changelog
 
-## 4.0.6
+## 4.0.7
 
-- Alterado o diretório de leitura dos logos para a pasta do plugin: `meshcentral-data/plugins/mesh_branding`.
-- `Aplicado_Logo.png` e `Aplicado_Logo_Custom.png` agora devem ficar dentro da pasta do plugin.
+- Logos customizados passam a ficar na pasta do plugin: `meshcentral-data/plugins/mesh_branding`.
+- O logo padrão `Aplicado_Logo.png` volta a ficar no diretório base `meshcentral-data`.
 - Mantida interceptação de `/loginlogo.png` e `/logo.png`.
-- Mantido fallback por `Aplicado_Logo.png`.
-- Adicionado header `X-Mesh-Branding-Root` para diagnóstico.
+- Fallback agora usa `meshcentral-data/Aplicado_Logo.png`.
+- Nome do plugin alterado para `Mesh Branding` na tela de plugins.
+- Adicionado header `X-Mesh-Branding-Mode` para diagnóstico.
 
 ## 4.0.5
 

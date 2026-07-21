@@ -1,5 +1,5 @@
 /**
- * MeshCentral Mesh Branding v4.0.6
+ * MeshCentral Mesh Branding v4.0.7
  * Intercepta /loginlogo.png e /logo.png no backend, antes das rotas nativas quando possível.
  * Usa arquivos dentro da pasta do plugin: meshcentral-data/plugins/mesh_branding.
  * Fallback: Aplicado_Logo.png também dentro da pasta do plugin.
@@ -50,37 +50,38 @@ module.exports.mesh_branding = function(parent) {
         host = normalizeHost(host);
         return domains[host] || domains[host.replace(/^www\./, '')] || null;
     }
-    function logoRootForConfig(cfg) {
-        // v4.0.6 default: file lookup is inside the plugin folder itself.
-        // Supported values:
-        // - plugin: meshcentral-data/plugins/mesh_branding
-        // - data: meshcentral-data
-        if (cfg && String(cfg.logoBaseDir || '').toLowerCase() === 'data') return dataDir;
+    function rootFromName(name) {
+        name = String(name || '').toLowerCase();
+        if (name === 'data') return dataDir;
         return pluginDir;
     }
     function selectLogoFile(req) {
         var cfg = readConfig();
-        var logoRoot = logoRootForConfig(cfg);
+        var customRoot = rootFromName(cfg.customLogoBaseDir || 'plugin');
+        var defaultRoot = rootFromName(cfg.defaultLogoBaseDir || 'data');
         var host = getHost(req);
         var brand = brandForHost(cfg, host);
-        var candidates = [];
-        if (brand && brand.logoFile) candidates.push(brand.logoFile);
-        if (cfg.defaultLogoFile) candidates.push(cfg.defaultLogoFile);
-        for (var i = 0; i < candidates.length; i++) {
-            var full = safeJoin(logoRoot, candidates[i]);
-            if (full && fs.existsSync(full) && fs.statSync(full).isFile()) return { file: full, host: host, selected: candidates[i], root: logoRoot };
+        if (brand && brand.logoFile) {
+            var customFile = safeJoin(customRoot, brand.logoFile);
+            if (customFile && fs.existsSync(customFile) && fs.statSync(customFile).isFile()) return { file: customFile, host: host, selected: brand.logoFile, root: customRoot, mode: 'custom' };
         }
-        return { file: null, host: host, selected: null, root: logoRoot };
+        if (cfg.defaultLogoFile) {
+            var defaultFile = safeJoin(defaultRoot, cfg.defaultLogoFile);
+            if (defaultFile && fs.existsSync(defaultFile) && fs.statSync(defaultFile).isFile()) return { file: defaultFile, host: host, selected: cfg.defaultLogoFile, root: defaultRoot, mode: 'default' };
+        }
+        return { file: null, host: host, selected: null, root: customRoot + ' | ' + defaultRoot, mode: 'missing' };
     }
     function sendLogo(req, res) {
         var selected = selectLogoFile(req);
-        if (!selected.file) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'X-Mesh-Branding-Root': selected.root || '' }); res.end('Mesh Branding: no logo found'); return; }
+        if (!selected.file) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'X-Mesh-Branding-Root': selected.root || '',
+            'X-Mesh-Branding-Mode': selected.mode || '' }); res.end('Mesh Branding: no logo found'); return; }
         res.writeHead(200, {
             'Content-Type': getMime(selected.file),
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'X-Mesh-Branding-Host': selected.host || '',
             'X-Mesh-Branding-File': selected.selected || '',
-            'X-Mesh-Branding-Root': selected.root || ''
+            'X-Mesh-Branding-Root': selected.root || '',
+            'X-Mesh-Branding-Mode': selected.mode || ''
         });
         fs.createReadStream(selected.file).pipe(res);
     }
@@ -141,7 +142,7 @@ module.exports.mesh_branding = function(parent) {
     obj.onWebUIStartupEnd = function() {
     (function() {
         'use strict';
-        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "logoBaseDir": "plugin", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "intercept": {"enabled": true, "paths": ["/loginlogo.png", "/logo.png"]}, "options": {"applyDocumentTitle": true, "replaceBrandingImagesAfterLogin": false, "replaceMainMeshImage": false, "replaceBackgrounds": false, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
+        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "customLogoBaseDir": "plugin", "defaultLogoBaseDir": "data", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "intercept": {"enabled": true, "paths": ["/loginlogo.png", "/logo.png"]}, "options": {"applyDocumentTitle": true, "replaceBrandingImagesAfterLogin": false, "replaceMainMeshImage": false, "replaceBackgrounds": false, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
         function normalizeHost(host) { return String(host || '').trim().toLowerCase().split(':')[0]; }
         function resolveBrand() {
             var host = normalizeHost(window.location.hostname);
@@ -167,7 +168,7 @@ module.exports.mesh_branding = function(parent) {
     obj.goPageEnd = function() {
     (function() {
         'use strict';
-        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "logoBaseDir": "plugin", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "intercept": {"enabled": true, "paths": ["/loginlogo.png", "/logo.png"]}, "options": {"applyDocumentTitle": true, "replaceBrandingImagesAfterLogin": false, "replaceMainMeshImage": false, "replaceBackgrounds": false, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
+        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "customLogoBaseDir": "plugin", "defaultLogoBaseDir": "data", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "intercept": {"enabled": true, "paths": ["/loginlogo.png", "/logo.png"]}, "options": {"applyDocumentTitle": true, "replaceBrandingImagesAfterLogin": false, "replaceMainMeshImage": false, "replaceBackgrounds": false, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
         function normalizeHost(host) { return String(host || '').trim().toLowerCase().split(':')[0]; }
         function resolveBrand() {
             var host = normalizeHost(window.location.hostname);

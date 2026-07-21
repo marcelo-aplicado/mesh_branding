@@ -1,6 +1,7 @@
 {
   "defaultLogoFile": "Aplicado_Logo.png",
-  "logoBaseDir": "plugin",
+  "customLogoBaseDir": "plugin",
+  "defaultLogoBaseDir": "data",
   "route": "/mesh_branding",
   "logoEndpoint": "/mesh_branding/logo.png",
   "intercept": {

@@ -10,9 +10,9 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## Versão 4.0.6
+## Versão 4.0.7
 
-Esta versão altera o local dos arquivos PNG. Agora o plugin procura os logos diretamente dentro da pasta do próprio plugin:
+Esta versão altera o local dos arquivos PNG. Agora o plugin procura os logos customizados dentro da pasta do próprio plugin e mantém o logo padrão no diretório base do MeshCentral:
 
 ```text
 /opt/meshcentral/meshcentral-data/plugins/mesh_branding/
@@ -26,9 +26,19 @@ No host Docker do seu ambiente, normalmente corresponde a:
 
 ## Arquivos esperados
 
+Logo padrão global:
+
 ```text
-/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/Aplicado_Logo.png
+/opt/docker/meshcentral/meshcentral-data/Aplicado_Logo.png
+```
+
+Logos customizados do plugin:
+
+```text
 /opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/Aplicado_Logo_Custom.png
+/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/FastCopy_Logo_Custom.png
+/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/CRSBrands_Logo_Custom.png
+/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/MHS_Logo_Custom.png
 ```
 
 ## Rotas interceptadas
@@ -43,13 +53,11 @@ No host Docker do seu ambiente, normalmente corresponde a:
 
 ## Fallback
 
-Se o logo customizado do domínio não existir, o plugin usa:
+Se o logo customizado do domínio não existir dentro da pasta do plugin, o plugin usa:
 
 ```text
-Aplicado_Logo.png
+/opt/docker/meshcentral/meshcentral-data/Aplicado_Logo.png
 ```
-
-Também dentro da pasta do plugin.
 
 ## Observação sobre atualizações
 
