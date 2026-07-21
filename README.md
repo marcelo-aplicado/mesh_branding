@@ -2,9 +2,32 @@
 
 Plugin de branding por subdomínio para MeshCentral.
 
-## Versão 4.1.0
+## Versão 4.1.1
 
-Adiciona suporte a favicon por domínio.
+Adiciona controle de tamanho para logos SVG/PNG e `defaultFaviconFile`.
+
+## Novas opções no `brand-config.json`
+
+```json
+"defaultFaviconFile": "Aplicado_Favicon.svg",
+"defaultLogoCss": {
+  "mastheadBackgroundSize": "220px auto",
+  "mastheadBackgroundPosition": "12px center",
+  "mastheadBackgroundRepeat": "no-repeat",
+  "loginLogoWidth": "224px",
+  "loginLogoHeight": "60px",
+  "loginLogoObjectFit": "contain"
+}
+```
+
+Cada domínio também pode sobrescrever usando:
+
+```json
+"logoCss": {
+  "mastheadBackgroundSize": "180px auto",
+  "loginLogoWidth": "220px"
+}
+```
 
 ## Arquivos esperados
 
@@ -17,12 +40,8 @@ Logo padrão global:
 Logos e favicons customizados do plugin:
 
 ```text
-/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/FastCopy_Logo.png
-/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/FastCopy_Favicon.png
-/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/CRSBrands_Logo.png
-/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/CRSBrands_Favicon.png
-/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/Aplicado_Logo.png
-/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/Aplicado_Favicon.png
+/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/FastCopy_Logo.svg
+/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/FastCopy_Favicon.svg
 ```
 
 ## Rotas interceptadas
@@ -33,12 +52,6 @@ Logos e favicons customizados do plugin:
 /favicon.ico
 /favicon-303x303.png
 ```
-
-Se o favicon customizado não existir, o plugin deixa a rota nativa do MeshCentral responder.
-
-## Diagnóstico
-
-Use `/mesh_branding/favicon.ico` para testar o favicon customizado do host atual.
 
 ## ZIP
 

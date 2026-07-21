@@ -1,12 +1,13 @@
 # Changelog
 
+## 4.1.1
+
+- Adicionado `defaultFaviconFile`.
+- Adicionado controle de tamanho via `defaultLogoCss` e `domains.<host>.logoCss`.
+- Aplica tamanho do logo no `#masthead` após login.
+- Injeta CSS de tamanho no HTML público/login para controlar `img#loginPicture`.
+- Mantido suporte a SVG, PNG, ICO, JPG e WEBP.
+
 ## 4.1.0
 
-- Adicionado suporte a favicon por domínio via `faviconFile` no `brand-config.json`.
-- Intercepta `/favicon.ico` e `/favicon-303x303.png` somente quando existe favicon customizado.
-- Adicionada rota diagnóstica `/mesh_branding/favicon.ico`.
-- Mantida correção de logout/redirect da v4.0.9.
-
-## 4.0.9
-
-- Middleware de `<title>` limitado a `/` e `/login`.
+- Adicionado suporte a favicon por domínio.
