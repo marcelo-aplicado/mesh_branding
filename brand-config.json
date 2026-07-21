@@ -23,7 +23,10 @@
     "mastheadBackgroundRepeat": "no-repeat",
     "loginLogoWidth": "224px",
     "loginLogoHeight": "60px",
-    "loginLogoObjectFit": "contain"
+    "loginLogoObjectFit": "contain",
+    "loginLogoDisplay": "block",
+    "loginLogoMarginLeft": "auto",
+    "loginLogoMarginRight": "auto"
   },
   "options": {
     "applyDocumentTitle": true,
