@@ -107,7 +107,7 @@ docker restart meshcentral
 
 ```json
 "defaultLogoCss": {
-  "mastheadBackgroundSize": "220px auto",
+  "mastheadBackgroundSize": "auto 50px",
   "loginLogoWidth": "224px",
   "loginLogoHeight": "60px"
 }
