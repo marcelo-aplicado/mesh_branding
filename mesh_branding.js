@@ -1,8 +1,8 @@
 /**
- * MeshCentral Mesh Branding v4.0.7
- * Intercepta /loginlogo.png e /logo.png no backend, antes das rotas nativas quando possível.
- * Usa arquivos dentro da pasta do plugin: meshcentral-data/plugins/mesh_branding.
- * Fallback: Aplicado_Logo.png também dentro da pasta do plugin.
+ * Mesh Branding v4.0.8
+ * Intercepta /loginlogo.png e /logo.png no backend e ajusta <title> da tela de login via middleware HTML.
+ * Custom logos: meshcentral-data/plugins/mesh_branding.
+ * Default logo: meshcentral-data/Aplicado_Logo.png.
  * Não altera MainMeshImage/Meu Servidor, background ou cores.
  */
 module.exports.mesh_branding = function(parent) {
@@ -71,10 +71,19 @@ module.exports.mesh_branding = function(parent) {
         }
         return { file: null, host: host, selected: null, root: customRoot + ' | ' + defaultRoot, mode: 'missing' };
     }
+    function titleForReq(req) {
+        var cfg = readConfig();
+        var host = getHost(req);
+        var brand = brandForHost(cfg, host);
+        return (brand && brand.documentTitle) || null;
+    }
     function sendLogo(req, res) {
         var selected = selectLogoFile(req);
-        if (!selected.file) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'X-Mesh-Branding-Root': selected.root || '',
-            'X-Mesh-Branding-Mode': selected.mode || '' }); res.end('Mesh Branding: no logo found'); return; }
+        if (!selected.file) {
+            res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'X-Mesh-Branding-Root': selected.root || '', 'X-Mesh-Branding-Mode': selected.mode || '' });
+            res.end('Mesh Branding: no logo found');
+            return;
+        }
         res.writeHead(200, {
             'Content-Type': getMime(selected.file),
             'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -106,6 +115,56 @@ module.exports.mesh_branding = function(parent) {
         } catch (e) {}
         return false;
     }
+    function shouldPatchHtml(req) {
+        if (!req || String(req.method || 'GET').toUpperCase() !== 'GET') return false;
+        var u = String(req.url || '/');
+        var pathOnly = u.split('?')[0].toLowerCase();
+        if (pathOnly.match(/\.(png|jpg|jpeg|gif|webp|ico|css|js|map|svg|woff|woff2|ttf|eot|ashx)$/)) return false;
+        var accept = String((req.headers && req.headers.accept) || '').toLowerCase();
+        return (accept.indexOf('text/html') >= 0 || accept.indexOf('*/*') >= 0 || pathOnly === '/' || pathOnly === '/login');
+    }
+    function patchTitleHtml(html, title) {
+        if (!title) return html;
+        var safeTitle = String(title).replace(/[&<>]/g, function(c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]; });
+        if (/<title>[\s\S]*?<\/title>/i.test(html)) return html.replace(/<title>[\s\S]*?<\/title>/i, '<title>' + safeTitle + '</title>');
+        if (/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i, function(m) { return m + '<title>' + safeTitle + '</title>'; });
+        return html;
+    }
+    function htmlTitleMiddleware(req, res, next) {
+        if (!shouldPatchHtml(req)) { return next(); }
+        var title = titleForReq(req);
+        if (!title) { return next(); }
+        var chunks = [];
+        var oldWrite = res.write;
+        var oldEnd = res.end;
+        var oldWriteHead = res.writeHead;
+        var statusCode = 200;
+        var headersObj = null;
+        res.writeHead = function(code, headers) {
+            statusCode = code || statusCode;
+            headersObj = headers || headersObj;
+            return res;
+        };
+        res.write = function(chunk, encoding, cb) {
+            if (chunk) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encoding));
+            if (typeof cb === 'function') cb();
+            return true;
+        };
+        res.end = function(chunk, encoding, cb) {
+            if (chunk) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encoding));
+            var body = Buffer.concat(chunks).toString('utf8');
+            if (body.indexOf('<html') >= 0 || body.indexOf('<title') >= 0 || body.indexOf('<head') >= 0) {
+                body = patchTitleHtml(body, title);
+                try { res.setHeader('Content-Length', Buffer.byteLength(body)); } catch(e) {}
+                try { res.setHeader('X-Mesh-Branding-Title', title); } catch(e) {}
+            }
+            if (oldWriteHead && !res.headersSent) {
+                try { oldWriteHead.call(res, statusCode, headersObj || undefined); } catch(e) {}
+            }
+            return oldEnd.call(res, body, 'utf8', cb);
+        };
+        next();
+    }
 
     obj.exports = [ 'onWebUIStartupEnd', 'goPageEnd' ];
     var cfg = readConfig();
@@ -125,24 +184,32 @@ module.exports.mesh_branding = function(parent) {
     obj.hook_setupHttpHandlers = function() {
         var a = getApp();
         if (!a) { log('Express app not found'); return; }
-        if (a.__mesh_branding_v406_registered) return;
-        a.__mesh_branding_v406_registered = true;
+        if (a.__mesh_branding_v408_registered) return;
+        a.__mesh_branding_v408_registered = true;
 
+        // Middleware de titulo HTML deve ficar na frente para atuar antes das rotas nativas.
+        a.use(htmlTitleMiddleware);
+        moveLastLayerToFront(a);
+
+        // Rota diagnostica e de uso geral.
         a.use(route, brandingHandler);
+
+        // Interceptacao das rotas nativas usadas pelo MeshCentral.
         a.use('/loginlogo.png', logoHandler);
         moveLastLayerToFront(a);
         a.use('/logo.png', logoHandler);
         var front = moveLastLayerToFront(a);
 
-        log('registered route ' + route + ' -> ' + pluginDir + '/<logoFile>');
-        log('intercepted /loginlogo.png and /logo.png -> ' + pluginDir + '/<logoFile>' + (front ? ' (front)' : ''));
+        log('registered route ' + route + ' -> custom:' + pluginDir + ', default:' + dataDir);
+        log('intercepted /loginlogo.png and /logo.png -> custom:' + pluginDir + ', default:' + dataDir + (front ? ' (front)' : ''));
+        log('registered HTML title middleware for login/public pages');
     };
 
     obj.server_startup = function() { log('loaded, pluginDir=' + pluginDir + ', dataDir=' + dataDir); };
     obj.onWebUIStartupEnd = function() {
     (function() {
         'use strict';
-        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "customLogoBaseDir": "plugin", "defaultLogoBaseDir": "data", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "intercept": {"enabled": true, "paths": ["/loginlogo.png", "/logo.png"]}, "options": {"applyDocumentTitle": true, "replaceBrandingImagesAfterLogin": false, "replaceMainMeshImage": false, "replaceBackgrounds": false, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
+        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "customLogoBaseDir": "plugin", "defaultLogoBaseDir": "data", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "intercept": {"enabled": true, "paths": ["/loginlogo.png", "/logo.png"]}, "options": {"applyDocumentTitle": true, "replaceBrandingImagesAfterLogin": false, "replaceMainMeshImage": false, "replaceBackgrounds": false, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo.png"}}};
         function normalizeHost(host) { return String(host || '').trim().toLowerCase().split(':')[0]; }
         function resolveBrand() {
             var host = normalizeHost(window.location.hostname);
@@ -168,7 +235,7 @@ module.exports.mesh_branding = function(parent) {
     obj.goPageEnd = function() {
     (function() {
         'use strict';
-        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "customLogoBaseDir": "plugin", "defaultLogoBaseDir": "data", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "intercept": {"enabled": true, "paths": ["/loginlogo.png", "/logo.png"]}, "options": {"applyDocumentTitle": true, "replaceBrandingImagesAfterLogin": false, "replaceMainMeshImage": false, "replaceBackgrounds": false, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
+        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "customLogoBaseDir": "plugin", "defaultLogoBaseDir": "data", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "intercept": {"enabled": true, "paths": ["/loginlogo.png", "/logo.png"]}, "options": {"applyDocumentTitle": true, "replaceBrandingImagesAfterLogin": false, "replaceMainMeshImage": false, "replaceBackgrounds": false, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo.png"}}};
         function normalizeHost(host) { return String(host || '').trim().toLowerCase().split(':')[0]; }
         function resolveBrand() {
             var host = normalizeHost(window.location.hostname);
