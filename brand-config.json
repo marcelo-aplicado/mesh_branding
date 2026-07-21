@@ -40,22 +40,22 @@
   "domains": {
     "mesh.aplicado.com.br": {
       "documentTitle": "Acesso Remoto - Aplicado",
-      "logoFile": "Aplicado_Logo.png",
+      "logoFile": "Aplicado_Logo.svg",
       "faviconFile": "Aplicado_Favicon.svg"
     },
     "mesh.fastcopy.net.br": {
       "documentTitle": "Acesso Remoto - FastCopy",
       "logoFile": "FastCopy_Logo.png",
-      "faviconFile": "FastCopy_Favicon.svg"
+      "faviconFile": "FastCopy_Favicon.png"
     },
     "mesh.crsbrands.com.br": {
       "documentTitle": "Acesso Remoto - CRS Brands",
       "logoFile": "CRSBrands_Logo.png",
-      "faviconFile": "CRSBrands_Favicon.svg"
+      "faviconFile": "CRSBrands_Favicon.png"
     },
     "mesh.mhs.tec.br": {
       "documentTitle": "Acesso Remoto - Aplicado",
-      "logoFile": "Aplicado_Logo.png",
+      "logoFile": "Aplicado_Logo.svg",
       "faviconFile": "Aplicado_Favicon.svg"
     }
   }
