@@ -1,8 +1,8 @@
 # Mesh Branding
 
-## Versão 4.1.3
+## Versão 1.2.1
 
-Corrige a centralização do logo na tela de login e mantém suporte a SVG/PNG, favicon por domínio, `defaultFaviconFile` e controle de tamanho.
+Versão final alinhada ao MeshCentral 1.2.1. Mantém suporte a SVG/PNG, favicon por domínio, `defaultFaviconFile`, controle de tamanho e centralização do logo na tela de login.
 
 ### CSS padrão
 
