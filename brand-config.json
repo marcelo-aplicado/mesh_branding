@@ -5,7 +5,8 @@
   "intercept": {
     "enabled": true,
     "paths": [
-      "/loginlogo.png"
+      "/loginlogo.png",
+      "/logo.png"
     ]
   },
   "options": {

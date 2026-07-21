@@ -1,9 +1,9 @@
 {
   "name": "MeshCentral Mesh Branding",
   "shortName": "mesh_branding",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "author": "Marcelo Henrique da Silva / CRS Brands",
-  "description": "Branding por subdomínio interceptando /loginlogo.png no backend do MeshCentral. Usa logos em meshcentral-data com fallback padrão.",
+  "description": "Branding por subdomínio interceptando /loginlogo.png e /logo.png no backend do MeshCentral. Usa logos em meshcentral-data com fallback padrão.",
   "hasAdminPanel": false,
   "homepage": "https://github.com/marcelo-aplicado/mesh_branding",
   "changelogUrl": "https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/CHANGELOG.md",
