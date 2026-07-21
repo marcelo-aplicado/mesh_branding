@@ -10,20 +10,19 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## Versão 4.0.1
+## Versão 4.0.2
 
-Esta versão corrige o registro de rota seguindo o mesmo padrão do <File>mesh-drive-github-ready-v1.2.1.zip</File>: usa `obj.meshServer = parent.parent`, obtém `obj.meshServer.webserver.app` e registra a rota com `app.use(route, handler)`.
+Esta versão corrige o comportamento visual observado na 4.0.1:
 
-Rota registrada:
+- remove/inibe o logo injetado `meshbranding-masthead-logo`;
+- não adiciona um novo logo em cima do logo padrão;
+- não altera `#MainMeshImage`, preservando a aba/card `Meu Servidor`;
+- substitui apenas o `src` de imagens existentes de branding, como `loginlogo.png`;
+- não altera background, cores ou textos internos.
+
+## Rota disponível
 
 ```text
-/mesh_branding/logo.png
-```
-
-Como a rota é montada com `app.use('/mesh_branding', handler)`, também responde internamente para:
-
-```text
-/mesh_branding/logo
 /mesh_branding/logo.png
 ```
 
@@ -40,26 +39,6 @@ Como a rota é montada com `app.use('/mesh_branding', handler)`, também respond
 - `mesh.fastcopy.net.br`: tenta `FastCopy_Logo_Custom.png`; fallback `Aplicado_Logo.png`.
 - `mesh.crsbrands.com.br`: tenta `CRSBrands_Logo_Custom.png`; fallback `Aplicado_Logo.png`.
 - `mesh.mhs.tec.br`: tenta `MHS_Logo_Custom.png`; fallback `Aplicado_Logo.png`.
-
-## Teste
-
-Após reiniciar o MeshCentral, o log esperado é:
-
-```text
-PLUGIN: Mesh Branding: registered route /mesh_branding -> /opt/meshcentral/meshcentral-data/<logoFile>
-```
-
-Abra:
-
-```text
-https://mesh.aplicado.com.br/mesh_branding/logo.png
-```
-
-O cabeçalho deve indicar:
-
-```text
-X-Mesh-Branding-File: Aplicado_Logo_Custom.png
-```
 
 ## ZIP
 

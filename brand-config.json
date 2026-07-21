@@ -5,8 +5,9 @@
   "options": {
     "applyDocumentTitle": true,
     "replaceBrandingImages": true,
-    "replaceMastheadLogo": true,
-    "preserveBackgrounds": true,
+    "replaceMastheadLogo": false,
+    "replaceMainMeshImage": false,
+    "replaceBackgrounds": false,
     "preserveInternalTitles": true,
     "debug": false
   },
