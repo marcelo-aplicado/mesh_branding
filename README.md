@@ -10,9 +10,9 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## Versão 4.0.8
+## Versão 4.0.9
 
-Esta versão usa como base o `brand-config.json` enviado pelo Marcelo e adiciona alteração do título HTML também na tela de login.
+Esta versão corrige o middleware de título HTML para não interferir em redirects, especialmente no fluxo `/logout` -> `/login`.
 
 ## Arquivos esperados
 
@@ -39,30 +39,7 @@ Logos customizados do plugin:
 
 ## Título da página de login
 
-A versão inclui um middleware HTML que substitui o conteúdo da tag:
-
-```html
-<title>...</title>
-```
-
-com base no `documentTitle` configurado para o host atual.
-
-## Diagnóstico
-
-As respostas das imagens incluem:
-
-```text
-X-Mesh-Branding-Host
-X-Mesh-Branding-File
-X-Mesh-Branding-Root
-X-Mesh-Branding-Mode
-```
-
-As respostas HTML alteradas incluem:
-
-```text
-X-Mesh-Branding-Title
-```
+O middleware de `<title>` agora só atua em `/` e `/login`, e ignora `/logout` para preservar o redirecionamento nativo do MeshCentral.
 
 ## ZIP
 
