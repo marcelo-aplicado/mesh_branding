@@ -10,9 +10,28 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## Versão 4.0.5
+## Versão 4.0.6
 
-Esta versão intercepta duas rotas nativas do MeshCentral:
+Esta versão altera o local dos arquivos PNG. Agora o plugin procura os logos diretamente dentro da pasta do próprio plugin:
+
+```text
+/opt/meshcentral/meshcentral-data/plugins/mesh_branding/
+```
+
+No host Docker do seu ambiente, normalmente corresponde a:
+
+```text
+/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/
+```
+
+## Arquivos esperados
+
+```text
+/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/Aplicado_Logo.png
+/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/Aplicado_Logo_Custom.png
+```
+
+## Rotas interceptadas
 
 ```text
 /loginlogo.png
@@ -20,45 +39,24 @@ Esta versão intercepta duas rotas nativas do MeshCentral:
 ```
 
 - `/loginlogo.png` é usado na tela de login.
-- `/logo.png` é usado como `background-image` do `#masthead` após o login.
+- `/logo.png` é usado como `background-image` do `#masthead` após login.
 
-Também mantém a rota diagnóstica:
+## Fallback
+
+Se o logo customizado do domínio não existir, o plugin usa:
 
 ```text
-/mesh_branding/logo.png
+Aplicado_Logo.png
 ```
 
-## Resultado esperado
+Também dentro da pasta do plugin.
 
-- `mesh.aplicado.com.br/loginlogo.png` retorna `Aplicado_Logo_Custom.png`, se existir.
-- `mesh.aplicado.com.br/logo.png` retorna `Aplicado_Logo_Custom.png`, se existir.
-- outros hosts usam seus `*_Custom.png`, se existirem.
-- quando o customizado não existir, retorna `Aplicado_Logo.png`.
+## Observação sobre atualizações
 
-## Arquivos esperados em meshcentral-data
+Ao atualizar/reinstalar o plugin pelo GitHub, confirme se os arquivos PNG continuam presentes em:
 
 ```text
-/opt/docker/meshcentral/meshcentral-data/Aplicado_Logo.png
-/opt/docker/meshcentral/meshcentral-data/Aplicado_Logo_Custom.png
-```
-
-## O que esta versão não altera
-
-- `#MainMeshImage`;
-- card `Meu Servidor`;
-- `/serverpic.ashx`;
-- background geral;
-- cores;
-- banco de dados;
-- grupos de dispositivos.
-
-## Cabeçalhos de diagnóstico
-
-As respostas das imagens devem incluir:
-
-```text
-X-Mesh-Branding-Host
-X-Mesh-Branding-File
+meshcentral-data/plugins/mesh_branding/
 ```
 
 ## ZIP
