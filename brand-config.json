@@ -18,7 +18,7 @@
     ]
   },
   "defaultLogoCss": {
-    "mastheadBackgroundSize": "220px auto",
+    "mastheadBackgroundSize": "auto 50px",
     "mastheadBackgroundPosition": "12px center",
     "mastheadBackgroundRepeat": "no-repeat",
     "loginLogoWidth": "224px",
