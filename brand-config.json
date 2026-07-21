@@ -1,9 +1,14 @@
 {
   "defaultLogoFile": "Aplicado_Logo.png",
+  "routes": {
+    "logo": "/mesh_branding/logo.png"
+  },
   "options": {
     "applyDocumentTitle": true,
-    "replaceBrandingImages": true,
-    "applyMastheadLogo": true,
+    "replaceLoginLogo": true,
+    "replaceTitleLogo": true,
+    "replaceMainMeshImage": true,
+    "replaceMastheadLogo": true,
     "preserveBackgrounds": true,
     "preserveInternalTitles": true,
     "debug": false
