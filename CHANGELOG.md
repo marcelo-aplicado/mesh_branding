@@ -1,15 +1,13 @@
 # Changelog
 
+## 4.0.1
+
+- Corrigido registro da rota seguindo o padrão funcional do Mesh Drive.
+- Usa `obj.meshServer = parent.parent`.
+- Registra `app.use('/mesh_branding', handler)` em vez de tentar localizar Express por varredura genérica.
+- Mantém fallback para `Aplicado_Logo.png`.
+- Mantém background, cores e `Meu Servidor` intactos.
+
 ## 4.0.0
 
-- Criada rota HTTP interna no MeshCentral: `/mesh_branding/logo.png`.
-- Rota também responde em `/mesh_branding/logo` para compatibilidade.
-- Backend seleciona o logo pelo host da requisição.
-- Fallback automático para `Aplicado_Logo.png`.
-- Frontend não cria mais URLs com `host=`; usa apenas `/mesh_branding/logo.png`.
-- Mantém background, cores e `Meu Servidor` intactos.
-- Adicionados cabeçalhos `X-Mesh-Branding-Host` e `X-Mesh-Branding-File` para diagnóstico.
-
-## 3.0.2
-
-- Logos diretamente em `meshcentral-data` sem subpasta.
+- Primeira tentativa de rota HTTP interna no MeshCentral.

@@ -1,30 +1,30 @@
 /**
- * MeshCentral Mesh Branding v4.0.0
- * Rota HTTP interna no MeshCentral: /mesh_branding/logo.png
+ * MeshCentral Mesh Branding v4.0.1
+ * Rota HTTP registrada usando o mesmo padrão do Mesh Drive: app.use(route, handler).
  * Usa arquivos diretamente em meshcentral-data.
- * Custom: Aplicado_Logo_Custom.png para mesh.aplicado.com.br.
- * Fallback: Aplicado_Logo.png para hosts sem logo customizado.
  */
 module.exports.mesh_branding = function(parent) {
-    var obj = {};
-    obj.parent = parent;
-    obj.exports = [ 'onWebUIStartupEnd', 'goPageEnd' ];
 
     var fs = require('fs');
     var path = require('path');
+    var obj = {};
+    obj.parent = parent;
+    obj.meshServer = parent.parent;
+    obj.debug = obj.meshServer && obj.meshServer.debug;
+
+    function log(m) {
+        try { obj.debug('PLUGIN', 'Mesh Branding', m); } catch (e) {}
+        try { console.log('PLUGIN: Mesh Branding: ' + m); } catch (e) {}
+    }
+
     var dataDir = path.resolve(__dirname, '..', '..');
     var localConfigPath = path.join(__dirname, 'brand-config.json');
 
     function readConfig() {
         try { return JSON.parse(fs.readFileSync(localConfigPath, 'utf8')); } catch (e) { return {}; }
     }
-
     function normalizeHost(host) { return String(host || '').trim().toLowerCase().split(':')[0]; }
-
-    function getHost(req) {
-        return normalizeHost((req && req.headers && (req.headers['x-forwarded-host'] || req.headers.host)) || '');
-    }
-
+    function getHost(req) { return normalizeHost((req && req.headers && (req.headers['x-forwarded-host'] || req.headers.host)) || ''); }
     function getMime(file) {
         var ext = path.extname(file).toLowerCase();
         if (ext === '.png') return 'image/png';
@@ -34,20 +34,17 @@ module.exports.mesh_branding = function(parent) {
         if (ext === '.ico') return 'image/x-icon';
         return 'application/octet-stream';
     }
-
     function safeJoin(base, rel) {
         rel = String(rel || '').replace(/\\/g, '/').replace(/^\/+/, '');
         var full = path.resolve(base, rel);
         if (full.indexOf(path.resolve(base)) !== 0) return null;
         return full;
     }
-
     function brandForHost(cfg, host) {
         var domains = cfg.domains || {};
         host = normalizeHost(host);
         return domains[host] || domains[host.replace(/^www\./, '')] || null;
     }
-
     function selectLogoFile(req) {
         var cfg = readConfig();
         var host = getHost(req);
@@ -61,103 +58,69 @@ module.exports.mesh_branding = function(parent) {
         }
         return { file: null, host: host, selected: null };
     }
-
     function sendLogo(req, res) {
         var selected = selectLogoFile(req);
-        if (!selected.file) {
-            res.statusCode = 404;
-            res.end('Mesh Branding: no logo found');
-            return;
-        }
-        res.setHeader('Content-Type', getMime(selected.file));
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.setHeader('X-Mesh-Branding-Host', selected.host || '');
-        res.setHeader('X-Mesh-Branding-File', selected.selected || '');
+        if (!selected.file) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end('Mesh Branding: no logo found'); return; }
+        res.writeHead(200, {
+            'Content-Type': getMime(selected.file),
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'X-Mesh-Branding-Host': selected.host || '',
+            'X-Mesh-Branding-File': selected.selected || ''
+        });
         fs.createReadStream(selected.file).pipe(res);
     }
-
-    function tryRegisterOnApp(app) {
-        if (!app || typeof app.get !== 'function') return false;
-        if (app.__mesh_branding_v400_registered) return true;
-        app.__mesh_branding_v400_registered = true;
-        app.get('/mesh_branding/logo.png', function(req, res) { sendLogo(req, res); });
-        app.get('/mesh_branding/logo', function(req, res) { sendLogo(req, res); });
-        console.log('PLUGIN: Mesh Branding v4.0.0: registered /mesh_branding/logo.png and /mesh_branding/logo, dataDir=' + dataDir);
-        return true;
+    function getApp() {
+        var c = [
+            obj.meshServer && obj.meshServer.webserver && obj.meshServer.webserver.app,
+            obj.meshServer && obj.meshServer.app,
+            parent && parent.app,
+            parent && parent.webserver && parent.webserver.app
+        ];
+        for (var i = 0; i < c.length; i++) if (c[i] && typeof c[i].use === 'function') return c[i];
+        return null;
     }
 
-    function findAndRegister(root) {
-        var seen = [];
-        var queue = [];
-        for (var a = 0; a < arguments.length; a++) queue.push(arguments[a]);
-        queue.push(parent);
-        var depth = 0;
-        while (queue.length && depth < 500) {
-            var x = queue.shift(); depth++;
-            if (!x || typeof x !== 'object') continue;
-            if (seen.indexOf(x) >= 0) continue;
-            seen.push(x);
-            if (tryRegisterOnApp(x)) return true;
-            var keys;
-            try { keys = Object.keys(x).slice(0, 120); } catch(e) { keys = []; }
-            for (var i = 0; i < keys.length; i++) {
-                var k = keys[i];
-                if (k === 'app' || k === 'expressApp' || k === 'webserver' || k === 'parent' || k === 'server' || k === 'meshserver' || k === 'obj') {
-                    try { queue.push(x[k]); } catch(e) {}
-                }
-            }
-        }
-        return false;
+    obj.exports = [ 'onWebUIStartupEnd', 'goPageEnd' ];
+    var cfg = readConfig();
+    var route = cfg.route || '/mesh_branding';
+
+    function handler(req, res) {
+        var u = req.url || '/';
+        var q = u.indexOf('?');
+        if (q >= 0) u = u.substring(0, q);
+        if (u === '/' || u === '/logo' || u === '/logo.png') { sendLogo(req, res); return; }
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('Mesh Branding route not found');
     }
-
-
-    function registerRoutes() {
-        var ok = findAndRegister.apply(null, arguments);
-        if (!ok) { console.log('PLUGIN: Mesh Branding v4.0.0: express app not found yet.'); }
-        return ok;
-    }
-
-    obj.server_startup = function() {
-        registerRoutes.apply(null, arguments);
-        setTimeout(function() { registerRoutes(); }, 1000);
-        setTimeout(function() { registerRoutes(); }, 5000);
-    };
 
     obj.hook_setupHttpHandlers = function() {
-        registerRoutes.apply(null, arguments);
+        var a = getApp();
+        if (!a) { log('Express app not found'); return; }
+        if (a.__mesh_branding_v401_registered) return;
+        a.__mesh_branding_v401_registered = true;
+        a.use(route, handler);
+        log('registered route ' + route + ' -> ' + dataDir + '/<logoFile>');
     };
 
+    obj.server_startup = function() { log('loaded, dataDir=' + dataDir); };
     obj.onWebUIStartupEnd = function() {
     (function() {
         'use strict';
-        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "routes": {"logo": "/mesh_branding/logo.png"}, "options": {"applyDocumentTitle": true, "replaceLoginLogo": true, "replaceTitleLogo": true, "replaceMainMeshImage": true, "replaceMastheadLogo": true, "preserveBackgrounds": true, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
+        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "options": {"applyDocumentTitle": true, "replaceBrandingImages": true, "replaceMastheadLogo": true, "preserveBackgrounds": true, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
         var state = window.__meshBrandingState || { logoStatus: null, logoUrl: null, pending: false, host: null };
         window.__meshBrandingState = state;
-
         function normalizeHost(host) { return String(host || '').trim().toLowerCase().split(':')[0]; }
-
         function resolveBrand() {
             var host = normalizeHost(window.location.hostname);
             var domains = CONFIG.domains || {};
             var brand = domains[host] || domains[host.replace(/^www\./, '')] || {};
             return { host: host, brand: brand };
         }
-
-        function logoUrl() {
-            var route = ((CONFIG.routes || {}).logo || '/mesh_branding/logo.png');
-            return route + '?v=' + encodeURIComponent(Date.now());
-        }
-
+        function logoUrl() { return (CONFIG.logoEndpoint || '/mesh_branding/logo.png') + '?v=' + encodeURIComponent(Date.now()); }
         function resetIfHostChanged() {
             var h = normalizeHost(window.location.hostname);
-            if (state.host !== h) {
-                state.host = h;
-                state.logoStatus = null;
-                state.logoUrl = null;
-                state.pending = false;
-            }
+            if (state.host !== h) { state.host = h; state.logoStatus = null; state.logoUrl = null; state.pending = false; }
         }
-
         function testLogoOnce(callback) {
             resetIfHostChanged();
             if (state.logoStatus === 'ok') { callback(state.logoUrl); return; }
@@ -168,20 +131,15 @@ module.exports.mesh_branding = function(parent) {
             var img = new Image();
             img.onload = function() {
                 state.pending = false;
-                if (img.width > 0 || img.height > 0) {
-                    state.logoStatus = 'ok';
-                    state.logoUrl = url;
-                    callback(url);
-                } else { state.logoStatus = 'missing'; }
+                if (img.width > 0 || img.height > 0) { state.logoStatus = 'ok'; state.logoUrl = url; callback(url); }
+                else { state.logoStatus = 'missing'; }
             };
             img.onerror = function() { state.pending = false; state.logoStatus = 'missing'; };
             img.src = url;
         }
-
         function isIgnorable(text) {
             return text.indexOf('icon-') >= 0 || text.indexOf('x16') >= 0 || text.indexOf('plugin24') >= 0 || text.indexOf('link4') >= 0 || text.indexOf('link6') >= 0 || text.indexOf('userimage.ashx') >= 0 || text.indexOf('user-256') >= 0 || text.indexOf('group-256') >= 0 || text.indexOf('mesh-256') >= 0 || text.indexOf('details/') >= 0;
         }
-
         function looksLikeBrandingImage(img) {
             if (!img || img.id === 'meshbranding-masthead-logo') return false;
             var id = String(img.id || '').toLowerCase();
@@ -201,7 +159,6 @@ module.exports.mesh_branding = function(parent) {
             if (text.indexOf('titlelogo') >= 0 || text.indexOf('title-logo') >= 0) return true;
             return false;
         }
-
         function replaceImages(url) {
             var imgs = document.querySelectorAll('img');
             for (var i = 0; i < imgs.length; i++) {
@@ -212,7 +169,6 @@ module.exports.mesh_branding = function(parent) {
                 img.setAttribute('data-meshbranding-replaced', '1');
             }
         }
-
         function addMastheadLogo(url) {
             if ((CONFIG.options || {}).replaceMastheadLogo === false) return;
             var masthead = document.getElementById('masthead');
@@ -235,21 +191,14 @@ module.exports.mesh_branding = function(parent) {
             }
             logo.src = url;
         }
-
         function apply() {
             var r = resolveBrand();
             window.__meshBrandingResolved = r;
             if ((CONFIG.options || {}).applyDocumentTitle !== false && r.brand.documentTitle) document.title = r.brand.documentTitle;
-            testLogoOnce(function(url) {
-                replaceImages(url);
-                addMastheadLogo(url);
-            });
-            // Nao altera background, cores nem textos internos.
+            testLogoOnce(function(url) { replaceImages(url); addMastheadLogo(url); });
         }
-
         window.meshBrandingApply = apply;
         apply();
-
         if (!window.__meshBrandingObserverStarted) {
             window.__meshBrandingObserverStarted = true;
             var pending = false;
@@ -265,34 +214,21 @@ module.exports.mesh_branding = function(parent) {
     obj.goPageEnd = function() {
     (function() {
         'use strict';
-        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "routes": {"logo": "/mesh_branding/logo.png"}, "options": {"applyDocumentTitle": true, "replaceLoginLogo": true, "replaceTitleLogo": true, "replaceMainMeshImage": true, "replaceMastheadLogo": true, "preserveBackgrounds": true, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
+        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "options": {"applyDocumentTitle": true, "replaceBrandingImages": true, "replaceMastheadLogo": true, "preserveBackgrounds": true, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
         var state = window.__meshBrandingState || { logoStatus: null, logoUrl: null, pending: false, host: null };
         window.__meshBrandingState = state;
-
         function normalizeHost(host) { return String(host || '').trim().toLowerCase().split(':')[0]; }
-
         function resolveBrand() {
             var host = normalizeHost(window.location.hostname);
             var domains = CONFIG.domains || {};
             var brand = domains[host] || domains[host.replace(/^www\./, '')] || {};
             return { host: host, brand: brand };
         }
-
-        function logoUrl() {
-            var route = ((CONFIG.routes || {}).logo || '/mesh_branding/logo.png');
-            return route + '?v=' + encodeURIComponent(Date.now());
-        }
-
+        function logoUrl() { return (CONFIG.logoEndpoint || '/mesh_branding/logo.png') + '?v=' + encodeURIComponent(Date.now()); }
         function resetIfHostChanged() {
             var h = normalizeHost(window.location.hostname);
-            if (state.host !== h) {
-                state.host = h;
-                state.logoStatus = null;
-                state.logoUrl = null;
-                state.pending = false;
-            }
+            if (state.host !== h) { state.host = h; state.logoStatus = null; state.logoUrl = null; state.pending = false; }
         }
-
         function testLogoOnce(callback) {
             resetIfHostChanged();
             if (state.logoStatus === 'ok') { callback(state.logoUrl); return; }
@@ -303,20 +239,15 @@ module.exports.mesh_branding = function(parent) {
             var img = new Image();
             img.onload = function() {
                 state.pending = false;
-                if (img.width > 0 || img.height > 0) {
-                    state.logoStatus = 'ok';
-                    state.logoUrl = url;
-                    callback(url);
-                } else { state.logoStatus = 'missing'; }
+                if (img.width > 0 || img.height > 0) { state.logoStatus = 'ok'; state.logoUrl = url; callback(url); }
+                else { state.logoStatus = 'missing'; }
             };
             img.onerror = function() { state.pending = false; state.logoStatus = 'missing'; };
             img.src = url;
         }
-
         function isIgnorable(text) {
             return text.indexOf('icon-') >= 0 || text.indexOf('x16') >= 0 || text.indexOf('plugin24') >= 0 || text.indexOf('link4') >= 0 || text.indexOf('link6') >= 0 || text.indexOf('userimage.ashx') >= 0 || text.indexOf('user-256') >= 0 || text.indexOf('group-256') >= 0 || text.indexOf('mesh-256') >= 0 || text.indexOf('details/') >= 0;
         }
-
         function looksLikeBrandingImage(img) {
             if (!img || img.id === 'meshbranding-masthead-logo') return false;
             var id = String(img.id || '').toLowerCase();
@@ -336,7 +267,6 @@ module.exports.mesh_branding = function(parent) {
             if (text.indexOf('titlelogo') >= 0 || text.indexOf('title-logo') >= 0) return true;
             return false;
         }
-
         function replaceImages(url) {
             var imgs = document.querySelectorAll('img');
             for (var i = 0; i < imgs.length; i++) {
@@ -347,7 +277,6 @@ module.exports.mesh_branding = function(parent) {
                 img.setAttribute('data-meshbranding-replaced', '1');
             }
         }
-
         function addMastheadLogo(url) {
             if ((CONFIG.options || {}).replaceMastheadLogo === false) return;
             var masthead = document.getElementById('masthead');
@@ -370,21 +299,14 @@ module.exports.mesh_branding = function(parent) {
             }
             logo.src = url;
         }
-
         function apply() {
             var r = resolveBrand();
             window.__meshBrandingResolved = r;
             if ((CONFIG.options || {}).applyDocumentTitle !== false && r.brand.documentTitle) document.title = r.brand.documentTitle;
-            testLogoOnce(function(url) {
-                replaceImages(url);
-                addMastheadLogo(url);
-            });
-            // Nao altera background, cores nem textos internos.
+            testLogoOnce(function(url) { replaceImages(url); addMastheadLogo(url); });
         }
-
         window.meshBrandingApply = apply;
         apply();
-
         if (!window.__meshBrandingObserverStarted) {
             window.__meshBrandingObserverStarted = true;
             var pending = false;
@@ -397,9 +319,5 @@ module.exports.mesh_branding = function(parent) {
         }
     })();
 };
-
-    setTimeout(function() { registerRoutes(); }, 1000);
-    setTimeout(function() { registerRoutes(); }, 5000);
-
     return obj;
 };

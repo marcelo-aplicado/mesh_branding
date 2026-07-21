@@ -10,22 +10,22 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## Versão 4.0.0
+## Versão 4.0.1
 
-Esta versão registra no servidor MeshCentral as rotas:
+Esta versão corrige o registro de rota seguindo o mesmo padrão do <File>mesh-drive-github-ready-v1.2.1.zip</File>: usa `obj.meshServer = parent.parent`, obtém `obj.meshServer.webserver.app` e registra a rota com `app.use(route, handler)`.
+
+Rota registrada:
 
 ```text
 /mesh_branding/logo.png
+```
+
+Como a rota é montada com `app.use('/mesh_branding', handler)`, também responde internamente para:
+
+```text
 /mesh_branding/logo
-```
-
-O navegador passa a trocar `loginlogo.png`, `serverpic.ashx`, `MainMeshImage` e imagens de branding para:
-
-```text
 /mesh_branding/logo.png
 ```
-
-O backend do plugin decide qual arquivo entregar com base no host da requisição.
 
 ## Arquivos esperados em meshcentral-data
 
@@ -36,38 +36,30 @@ O backend do plugin decide qual arquivo entregar com base no host da requisiçã
 
 ## Regra atual
 
-- `mesh.aplicado.com.br` tenta `Aplicado_Logo_Custom.png`; se não existir, usa `Aplicado_Logo.png`.
-- `mesh.fastcopy.net.br` tenta `FastCopy_Logo_Custom.png`; se não existir, usa `Aplicado_Logo.png`.
-- `mesh.crsbrands.com.br` tenta `CRSBrands_Logo_Custom.png`; se não existir, usa `Aplicado_Logo.png`.
-- `mesh.mhs.tec.br` tenta `MHS_Logo_Custom.png`; se não existir, usa `Aplicado_Logo.png`.
+- `mesh.aplicado.com.br`: tenta `Aplicado_Logo_Custom.png`; fallback `Aplicado_Logo.png`.
+- `mesh.fastcopy.net.br`: tenta `FastCopy_Logo_Custom.png`; fallback `Aplicado_Logo.png`.
+- `mesh.crsbrands.com.br`: tenta `CRSBrands_Logo_Custom.png`; fallback `Aplicado_Logo.png`.
+- `mesh.mhs.tec.br`: tenta `MHS_Logo_Custom.png`; fallback `Aplicado_Logo.png`.
 
-## Teste da rota
+## Teste
 
-Após atualizar, reinicie o MeshCentral e abra:
+Após reiniciar o MeshCentral, o log esperado é:
+
+```text
+PLUGIN: Mesh Branding: registered route /mesh_branding -> /opt/meshcentral/meshcentral-data/<logoFile>
+```
+
+Abra:
 
 ```text
 https://mesh.aplicado.com.br/mesh_branding/logo.png
 ```
 
-O retorno deve ser HTTP 200 e o cabeçalho deve incluir algo como:
+O cabeçalho deve indicar:
 
 ```text
 X-Mesh-Branding-File: Aplicado_Logo_Custom.png
 ```
-
-Se o log do MeshCentral não mostrar a linha abaixo, a rota não foi registrada:
-
-```text
-PLUGIN: Mesh Branding v4.0.0: registered /mesh_branding/logo.png and /mesh_branding/logo
-```
-
-## O que esta versão não altera
-
-- background;
-- cores;
-- texto interno `Meu Servidor`;
-- banco de dados;
-- domínio lógico do MeshCentral.
 
 ## ZIP
 
