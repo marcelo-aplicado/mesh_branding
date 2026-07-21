@@ -2,13 +2,17 @@
   "defaultLogoFile": "Aplicado_Logo.png",
   "customLogoBaseDir": "plugin",
   "defaultLogoBaseDir": "data",
+  "customFaviconBaseDir": "plugin",
   "route": "/mesh_branding",
   "logoEndpoint": "/mesh_branding/logo.png",
+  "faviconEndpoint": "/mesh_branding/favicon.ico",
   "intercept": {
     "enabled": true,
     "paths": [
       "/loginlogo.png",
-      "/logo.png"
+      "/logo.png",
+      "/favicon.ico",
+      "/favicon-303x303.png"
     ]
   },
   "options": {
@@ -22,19 +26,23 @@
   "domains": {
     "mesh.aplicado.com.br": {
       "documentTitle": "Acesso Remoto - Aplicado",
-      "logoFile": "Aplicado_Logo.png"
+      "logoFile": "Aplicado_Logo.png",
+      "faviconFile": "Aplicado_Favicon.png"
     },
     "mesh.fastcopy.net.br": {
       "documentTitle": "Acesso Remoto - FastCopy",
-      "logoFile": "FastCopy_Logo.png"
+      "logoFile": "FastCopy_Logo.png",
+      "faviconFile": "FastCopy_Favicon.png"
     },
     "mesh.crsbrands.com.br": {
       "documentTitle": "Acesso Remoto - CRS Brands",
-      "logoFile": "CRSBrands_Logo.png"
+      "logoFile": "CRSBrands_Logo.png",
+      "faviconFile": "CRSBrands_Favicon.png"
     },
     "mesh.mhs.tec.br": {
       "documentTitle": "Acesso Remoto - Aplicado",
-      "logoFile": "Aplicado_Logo.png"
+      "logoFile": "Aplicado_Logo.png",
+      "faviconFile": "Aplicado_Favicon.png"
     }
   }
 }

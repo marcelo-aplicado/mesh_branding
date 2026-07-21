@@ -1,9 +1,9 @@
 {
   "name": "Mesh Branding",
   "shortName": "mesh_branding",
-  "version": "4.0.9",
+  "version": "4.1.0",
   "author": "Marcelo Henrique da Silva / CRS Brands",
-  "description": "Branding por subdomínio com interceptação de logos e título HTML da tela de login sem interferir em redirects/logout.",
+  "description": "Branding por subdomínio com logos, favicon e título HTML por host. Custom logos/favicons na pasta do plugin e fallback de logo em meshcentral-data.",
   "hasAdminPanel": false,
   "homepage": "https://github.com/marcelo-aplicado/mesh_branding",
   "changelogUrl": "https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/CHANGELOG.md",

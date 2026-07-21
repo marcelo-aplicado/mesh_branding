@@ -2,17 +2,9 @@
 
 Plugin de branding por subdomínio para MeshCentral.
 
-## Instalação
+## Versão 4.1.0
 
-Use esta URL na interface gráfica do MeshCentral:
-
-```text
-https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
-```
-
-## Versão 4.0.9
-
-Esta versão corrige o middleware de título HTML para não interferir em redirects, especialmente no fluxo `/logout` -> `/login`.
+Adiciona suporte a favicon por domínio.
 
 ## Arquivos esperados
 
@@ -22,12 +14,15 @@ Logo padrão global:
 /opt/docker/meshcentral/meshcentral-data/Aplicado_Logo.png
 ```
 
-Logos customizados do plugin:
+Logos e favicons customizados do plugin:
 
 ```text
 /opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/FastCopy_Logo.png
+/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/FastCopy_Favicon.png
 /opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/CRSBrands_Logo.png
+/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/CRSBrands_Favicon.png
 /opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/Aplicado_Logo.png
+/opt/docker/meshcentral/meshcentral-data/plugins/mesh_branding/Aplicado_Favicon.png
 ```
 
 ## Rotas interceptadas
@@ -35,11 +30,15 @@ Logos customizados do plugin:
 ```text
 /loginlogo.png
 /logo.png
+/favicon.ico
+/favicon-303x303.png
 ```
 
-## Título da página de login
+Se o favicon customizado não existir, o plugin deixa a rota nativa do MeshCentral responder.
 
-O middleware de `<title>` agora só atua em `/` e `/login`, e ignora `/logout` para preservar o redirecionamento nativo do MeshCentral.
+## Diagnóstico
+
+Use `/mesh_branding/favicon.ico` para testar o favicon customizado do host atual.
 
 ## ZIP
 
