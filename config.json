@@ -1,9 +1,9 @@
 {
   "name": "MeshCentral Mesh Branding",
   "shortName": "mesh_branding",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "author": "Marcelo Henrique da Silva / CRS Brands",
-  "description": "Branding por subdomínio com rota HTTP interna. Corrige sobreposição de logos e preserva Meu Servidor/MainMeshImage.",
+  "description": "Branding por subdomínio com rota HTTP interna. Corrige tela de login via loginPicture e preserva Meu Servidor/MainMeshImage.",
   "hasAdminPanel": false,
   "homepage": "https://github.com/marcelo-aplicado/mesh_branding",
   "changelogUrl": "https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/CHANGELOG.md",

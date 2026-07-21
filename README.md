@@ -10,21 +10,27 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## Versão 4.0.2
+## Versão 4.0.3
 
-Esta versão corrige o comportamento visual observado na 4.0.1:
+Esta versão corrige a tela de login identificada no MeshCentral 1.2.1:
 
-- remove/inibe o logo injetado `meshbranding-masthead-logo`;
-- não adiciona um novo logo em cima do logo padrão;
-- não altera `#MainMeshImage`, preservando a aba/card `Meu Servidor`;
-- substitui apenas o `src` de imagens existentes de branding, como `loginlogo.png`;
-- não altera background, cores ou textos internos.
+```html
+<img id="loginPicture" src="loginlogo.png">
+```
 
-## Rota disponível
+A correção troca explicitamente `img#loginPicture` para:
 
 ```text
 /mesh_branding/logo.png
 ```
+
+Mantém:
+
+- `#MainMeshImage` preservado;
+- card `Meu Servidor` preservado;
+- background preservado;
+- cores preservadas;
+- sem logo extra sobreposto no masthead.
 
 ## Arquivos esperados em meshcentral-data
 

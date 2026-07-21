@@ -5,6 +5,7 @@
   "options": {
     "applyDocumentTitle": true,
     "replaceBrandingImages": true,
+    "replaceLoginPicture": true,
     "replaceMastheadLogo": false,
     "replaceMainMeshImage": false,
     "replaceBackgrounds": false,

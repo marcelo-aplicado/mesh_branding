@@ -1,7 +1,7 @@
 /**
- * MeshCentral Mesh Branding v4.0.2
- * Corrige sobreposicao: nao injeta logo novo no masthead e nao altera MainMeshImage/Meu Servidor.
- * Apenas substitui o src de imagens existentes como loginlogo.png.
+ * MeshCentral Mesh Branding v4.0.3
+ * Corrige tela de login: substitui explicitamente img#loginPicture.
+ * Preserva MainMeshImage/Meu Servidor e nao injeta logo extra no masthead.
  */
 module.exports.mesh_branding = function(parent) {
 
@@ -96,8 +96,8 @@ module.exports.mesh_branding = function(parent) {
     obj.hook_setupHttpHandlers = function() {
         var a = getApp();
         if (!a) { log('Express app not found'); return; }
-        if (a.__mesh_branding_v402_registered) return;
-        a.__mesh_branding_v402_registered = true;
+        if (a.__mesh_branding_v403_registered) return;
+        a.__mesh_branding_v403_registered = true;
         a.use(route, handler);
         log('registered route ' + route + ' -> ' + dataDir + '/<logoFile>');
     };
@@ -106,9 +106,10 @@ module.exports.mesh_branding = function(parent) {
     obj.onWebUIStartupEnd = function() {
     (function() {
         'use strict';
-        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "options": {"applyDocumentTitle": true, "replaceBrandingImages": true, "replaceMastheadLogo": false, "replaceMainMeshImage": false, "replaceBackgrounds": false, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
+        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "options": {"applyDocumentTitle": true, "replaceBrandingImages": true, "replaceLoginPicture": true, "replaceMastheadLogo": false, "replaceMainMeshImage": false, "replaceBackgrounds": false, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
         var state = window.__meshBrandingState || { logoStatus: null, logoUrl: null, pending: false, host: null };
         window.__meshBrandingState = state;
+
         function normalizeHost(host) { return String(host || '').trim().toLowerCase().split(':')[0]; }
         function resolveBrand() {
             var host = normalizeHost(window.location.hostname);
@@ -142,6 +143,7 @@ module.exports.mesh_branding = function(parent) {
         }
         function looksLikeBrandingImage(img) {
             if (!img) return false;
+            if (img.id === 'loginPicture') return true;
             // Nunca substituir o logo do card 'Meu Servidor'.
             if (img.id === 'MainMeshImage' && (CONFIG.options || {}).replaceMainMeshImage !== true) return false;
             var id = String(img.id || '').toLowerCase();
@@ -152,7 +154,6 @@ module.exports.mesh_branding = function(parent) {
             var text = id + ' ' + cls + ' ' + alt + ' ' + srcAttr + ' ' + src;
             if (img.getAttribute('data-meshbranding-preserve') === '1') return false;
             if (isIgnorable(text)) return false;
-            // Troca somente imagens existentes de branding; nao cria imagem nova.
             if (text.indexOf('loginlogo.png') >= 0) return true;
             if (text.indexOf('loginpic.ashx') >= 0) return true;
             if (text.indexOf('titlepic.ashx') >= 0) return true;
@@ -160,7 +161,15 @@ module.exports.mesh_branding = function(parent) {
             if (text.indexOf('titlelogo') >= 0 || text.indexOf('title-logo') >= 0) return true;
             return false;
         }
+        function replaceExplicitLoginPicture(url) {
+            var loginPicture = document.getElementById('loginPicture');
+            if (!loginPicture || (CONFIG.options || {}).replaceLoginPicture === false) return;
+            if (!loginPicture.getAttribute('data-meshbranding-original-src')) loginPicture.setAttribute('data-meshbranding-original-src', loginPicture.getAttribute('src') || '');
+            loginPicture.src = url;
+            loginPicture.setAttribute('data-meshbranding-replaced', '1');
+        }
         function replaceImages(url) {
+            replaceExplicitLoginPicture(url);
             var imgs = document.querySelectorAll('img');
             for (var i = 0; i < imgs.length; i++) {
                 var img = imgs[i];
@@ -186,6 +195,9 @@ module.exports.mesh_branding = function(parent) {
         }
         window.meshBrandingApply = apply;
         apply();
+        setTimeout(apply, 250);
+        setTimeout(apply, 1000);
+        setTimeout(apply, 2500);
         if (!window.__meshBrandingObserverStarted) {
             window.__meshBrandingObserverStarted = true;
             var pending = false;
@@ -201,9 +213,10 @@ module.exports.mesh_branding = function(parent) {
     obj.goPageEnd = function() {
     (function() {
         'use strict';
-        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "options": {"applyDocumentTitle": true, "replaceBrandingImages": true, "replaceMastheadLogo": false, "replaceMainMeshImage": false, "replaceBackgrounds": false, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
+        var CONFIG = {"defaultLogoFile": "Aplicado_Logo.png", "route": "/mesh_branding", "logoEndpoint": "/mesh_branding/logo.png", "options": {"applyDocumentTitle": true, "replaceBrandingImages": true, "replaceLoginPicture": true, "replaceMastheadLogo": false, "replaceMainMeshImage": false, "replaceBackgrounds": false, "preserveInternalTitles": true, "debug": false}, "domains": {"mesh.aplicado.com.br": {"documentTitle": "Acesso Remoto - Aplicado", "logoFile": "Aplicado_Logo_Custom.png"}, "mesh.fastcopy.net.br": {"documentTitle": "Acesso Remoto - FastCopy", "logoFile": "FastCopy_Logo_Custom.png"}, "mesh.crsbrands.com.br": {"documentTitle": "Acesso Remoto - CRS Brands", "logoFile": "CRSBrands_Logo_Custom.png"}, "mesh.mhs.tec.br": {"documentTitle": "Acesso Remoto - MHS TEC", "logoFile": "MHS_Logo_Custom.png"}}};
         var state = window.__meshBrandingState || { logoStatus: null, logoUrl: null, pending: false, host: null };
         window.__meshBrandingState = state;
+
         function normalizeHost(host) { return String(host || '').trim().toLowerCase().split(':')[0]; }
         function resolveBrand() {
             var host = normalizeHost(window.location.hostname);
@@ -237,6 +250,7 @@ module.exports.mesh_branding = function(parent) {
         }
         function looksLikeBrandingImage(img) {
             if (!img) return false;
+            if (img.id === 'loginPicture') return true;
             // Nunca substituir o logo do card 'Meu Servidor'.
             if (img.id === 'MainMeshImage' && (CONFIG.options || {}).replaceMainMeshImage !== true) return false;
             var id = String(img.id || '').toLowerCase();
@@ -247,7 +261,6 @@ module.exports.mesh_branding = function(parent) {
             var text = id + ' ' + cls + ' ' + alt + ' ' + srcAttr + ' ' + src;
             if (img.getAttribute('data-meshbranding-preserve') === '1') return false;
             if (isIgnorable(text)) return false;
-            // Troca somente imagens existentes de branding; nao cria imagem nova.
             if (text.indexOf('loginlogo.png') >= 0) return true;
             if (text.indexOf('loginpic.ashx') >= 0) return true;
             if (text.indexOf('titlepic.ashx') >= 0) return true;
@@ -255,7 +268,15 @@ module.exports.mesh_branding = function(parent) {
             if (text.indexOf('titlelogo') >= 0 || text.indexOf('title-logo') >= 0) return true;
             return false;
         }
+        function replaceExplicitLoginPicture(url) {
+            var loginPicture = document.getElementById('loginPicture');
+            if (!loginPicture || (CONFIG.options || {}).replaceLoginPicture === false) return;
+            if (!loginPicture.getAttribute('data-meshbranding-original-src')) loginPicture.setAttribute('data-meshbranding-original-src', loginPicture.getAttribute('src') || '');
+            loginPicture.src = url;
+            loginPicture.setAttribute('data-meshbranding-replaced', '1');
+        }
         function replaceImages(url) {
+            replaceExplicitLoginPicture(url);
             var imgs = document.querySelectorAll('img');
             for (var i = 0; i < imgs.length; i++) {
                 var img = imgs[i];
@@ -281,6 +302,9 @@ module.exports.mesh_branding = function(parent) {
         }
         window.meshBrandingApply = apply;
         apply();
+        setTimeout(apply, 250);
+        setTimeout(apply, 1000);
+        setTimeout(apply, 2500);
         if (!window.__meshBrandingObserverStarted) {
             window.__meshBrandingObserverStarted = true;
             var pending = false;
