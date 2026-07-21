@@ -1,6 +1,6 @@
 # MeshCentral Mesh Branding
 
-Plugin de branding por subdomínio para MeshCentral com rota HTTP interna no próprio servidor.
+Plugin de branding por subdomínio para MeshCentral com interceptação backend do `loginlogo.png`.
 
 ## Instalação
 
@@ -10,27 +10,25 @@ Use esta URL na interface gráfica do MeshCentral:
 https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/config.json
 ```
 
-## Versão 4.0.3
+## Versão 4.0.4
 
-Esta versão corrige a tela de login identificada no MeshCentral 1.2.1:
+Esta versão não depende mais de JavaScript na tela de login. Como o MeshCentral 1.2.1 não carrega `pluginHandler` na tela de login, o plugin passa a interceptar diretamente a rota nativa:
 
-```html
-<img id="loginPicture" src="loginlogo.png">
+```text
+/loginlogo.png
 ```
 
-A correção troca explicitamente `img#loginPicture` para:
+Também mantém a rota diagnóstica:
 
 ```text
 /mesh_branding/logo.png
 ```
 
-Mantém:
+## Resultado esperado
 
-- `#MainMeshImage` preservado;
-- card `Meu Servidor` preservado;
-- background preservado;
-- cores preservadas;
-- sem logo extra sobreposto no masthead.
+- `mesh.aplicado.com.br/loginlogo.png` deve retornar `Aplicado_Logo_Custom.png`, se o arquivo existir.
+- outros hosts usam seus `*_Custom.png`, se existirem.
+- quando o customizado não existir, retorna `Aplicado_Logo.png`.
 
 ## Arquivos esperados em meshcentral-data
 
@@ -39,12 +37,23 @@ Mantém:
 /opt/docker/meshcentral/meshcentral-data/Aplicado_Logo_Custom.png
 ```
 
-## Regra atual
+## O que esta versão não altera
 
-- `mesh.aplicado.com.br`: tenta `Aplicado_Logo_Custom.png`; fallback `Aplicado_Logo.png`.
-- `mesh.fastcopy.net.br`: tenta `FastCopy_Logo_Custom.png`; fallback `Aplicado_Logo.png`.
-- `mesh.crsbrands.com.br`: tenta `CRSBrands_Logo_Custom.png`; fallback `Aplicado_Logo.png`.
-- `mesh.mhs.tec.br`: tenta `MHS_Logo_Custom.png`; fallback `Aplicado_Logo.png`.
+- `#MainMeshImage`;
+- card `Meu Servidor`;
+- background;
+- cores;
+- banco de dados;
+- grupos de dispositivos.
+
+## Cabeçalhos de diagnóstico
+
+A resposta da imagem deve incluir:
+
+```text
+X-Mesh-Branding-Host
+X-Mesh-Branding-File
+```
 
 ## ZIP
 

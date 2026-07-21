@@ -2,11 +2,15 @@
   "defaultLogoFile": "Aplicado_Logo.png",
   "route": "/mesh_branding",
   "logoEndpoint": "/mesh_branding/logo.png",
+  "intercept": {
+    "enabled": true,
+    "paths": [
+      "/loginlogo.png"
+    ]
+  },
   "options": {
     "applyDocumentTitle": true,
-    "replaceBrandingImages": true,
-    "replaceLoginPicture": true,
-    "replaceMastheadLogo": false,
+    "replaceBrandingImagesAfterLogin": false,
     "replaceMainMeshImage": false,
     "replaceBackgrounds": false,
     "preserveInternalTitles": true,

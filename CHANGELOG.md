@@ -1,13 +1,13 @@
 # Changelog
 
+## 4.0.4
+
+- Nova estratégia: intercepta `/loginlogo.png` diretamente no backend.
+- Não depende mais do JavaScript do plugin na tela de login.
+- Mantém `/mesh_branding/logo.png` como rota diagnóstica.
+- Usa o mesmo seletor de arquivo por host e fallback para `Aplicado_Logo.png`.
+- Mantém `MainMeshImage`, `Meu Servidor`, background e cores intactos.
+
 ## 4.0.3
 
-- Corrigida troca do logo na tela de login via `img#loginPicture`.
-- Mantido `#MainMeshImage` intacto para preservar `Meu Servidor`.
-- Mantida remoção de qualquer logo extra injetado no masthead.
-- Adicionados retries leves no frontend para capturar carregamento tardio da tela de login.
-
-## 4.0.2
-
-- Removida injeção do logo extra `meshbranding-masthead-logo`.
-- Preservado `#MainMeshImage`.
+- Tentativa frontend via `img#loginPicture`.
