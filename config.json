@@ -1,9 +1,9 @@
 {
   "name": "Mesh Branding",
   "shortName": "mesh_branding",
-  "version": "4.1.1",
+  "version": "4.1.2",
   "author": "Marcelo Henrique da Silva / CRS Brands",
-  "description": "Branding por subdomínio com logos, favicons, título HTML e controle de tamanho por host.",
+  "description": "Branding por subdomínio com logos, favicons, título HTML e controle de tamanho por host. Versão estabilizada após validação de layout.",
   "hasAdminPanel": false,
   "homepage": "https://github.com/marcelo-aplicado/mesh_branding",
   "changelogUrl": "https://raw.githubusercontent.com/marcelo-aplicado/mesh_branding/main/CHANGELOG.md",

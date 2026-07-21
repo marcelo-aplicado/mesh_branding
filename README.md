@@ -2,9 +2,9 @@
 
 Plugin de branding por subdomínio para MeshCentral.
 
-## Versão 4.1.1
+## Versão 4.1.2
 
-Adiciona controle de tamanho para logos SVG/PNG e `defaultFaviconFile`.
+Versão estabilizada com suporte a SVG/PNG, favicon por domínio, `defaultFaviconFile` e controle de tamanho do logo no login e no masthead.
 
 ## Novas opções no `brand-config.json`
 

@@ -1,5 +1,5 @@
 /**
- * Mesh Branding v4.1.1
+ * Mesh Branding v4.1.2
  * Logos, favicons, title e tamanho por host.
  */
 module.exports.mesh_branding = function(parent) {
@@ -225,8 +225,8 @@ module.exports.mesh_branding = function(parent) {
     obj.hook_setupHttpHandlers = function() {
         var app = getApp();
         if (!app) { log('Express app not found'); return; }
-        if (app.__mesh_branding_v411_registered) return;
-        app.__mesh_branding_v411_registered = true;
+        if (app.__mesh_branding_v412_registered) return;
+        app.__mesh_branding_v412_registered = true;
         app.use(htmlPatchMiddleware); moveLastLayerToFront(app);
         var cfg = readConfig(), route = cfg.route || '/mesh_branding';
         app.use(route, brandingHandler);
