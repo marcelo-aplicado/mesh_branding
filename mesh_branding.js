@@ -1,5 +1,5 @@
 /**
- * Mesh Branding v1.2.2
+ * Mesh Branding v1.2.4
  * Fonte unica de configuracao: brand-config.json.
  * O frontend carrega /mesh_branding/config, sem CONFIG hardcoded no JS.
  */
@@ -267,8 +267,8 @@ module.exports.mesh_branding = function(parent) {
     obj.hook_setupHttpHandlers = function() {
         var app = getApp();
         if (!app) { log('Express app not found'); return; }
-        if (app.__mesh_branding_v122_registered) return;
-        app.__mesh_branding_v122_registered = true;
+        if (app.__mesh_branding_v124_registered) return;
+        app.__mesh_branding_v124_registered = true;
 
         app.use(htmlMw); front(app);
         var c = cfg(), r = c.route || '/mesh_branding';
