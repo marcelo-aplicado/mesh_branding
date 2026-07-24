@@ -1,22 +1,13 @@
 # Changelog
 
-## 1.2.1
+## 1.2.2
 
-- Versão final alinhada ao MeshCentral 1.2.1.
-- Mantida a correção de centralização do logo na tela de login.
-- Mantido suporte a SVG/PNG para logo e favicon.
-- Mantido `defaultFaviconFile`.
-- Mantido controle de tamanho via `defaultLogoCss` e `domains.<host>.logoCss`.
+- Removido `CONFIG` hardcoded do frontend.
+- Adicionada rota `/mesh_branding/config` para retornar o `brand-config.json` atual.
+- O frontend passa a aplicar `defaultLogoCss` e `domains.<host>.logoCss` usando a configuração dinâmica.
 - Mantida interceptação de `/loginlogo.png`, `/logo.png`, `/favicon.ico` e `/favicon-303x303.png`.
 - Mantidos `MainMeshImage`, `Meu Servidor`, `/serverpic.ashx`, background geral e cores intactos.
 
-## 4.1.3
+## 1.2.1
 
-- Corrigida a centralização do logo na tela de login.
-- Adicionado suporte a `loginLogoDisplay`, `loginLogoMarginLeft` e `loginLogoMarginRight`.
-- Mantido suporte a SVG/PNG para logo e favicon.
-- Mantidos `MainMeshImage`, `Meu Servidor`, `/serverpic.ashx`, background geral e cores intactos.
-
-## 4.1.2
-
-- Versão estabilizada após validação do comportamento visual na tela de login.
+- Versão final alinhada ao MeshCentral 1.2.1.
